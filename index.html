@@ -29,7 +29,7 @@
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--ink); font: 15px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
     button, input, select { font: inherit; } button { color: inherit; cursor: pointer; } button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
-    
+
     .app { max-width: 640px; margin: auto; min-height: 100dvh; padding: 18px 16px 100px; }
     .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 5px 2px 18px; }
     .eyebrow { color: var(--mint); font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
@@ -67,17 +67,11 @@
     .quick-card span { display: block; color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
     .quick-card b { display: block; font-size: 21px; letter-spacing: -.04em; margin-top: 2px; color: var(--lime); }
 
-    /* PWA Banner */
-    .install-card { display: flex; align-items: center; justify-content: space-between; gap: 13px; background: #182724; border: 1px solid #3a5d52; border-radius: 16px; padding: 12px 14px; margin: -10px 0 20px; }
-    .install-card p { margin: 0; color: #c4d8d1; font-size: 12px; line-height: 1.35; }
-    .install-card strong { color: var(--mint); }
-    .install-card button { flex: 0 0 auto; border: 0; background: var(--mint); color: #10201b; border-radius: 10px; padding: 9px 11px; font-size: 12px; font-weight: 800; }
-
     /* Section & Exercises */
     .section-head { display: flex; justify-content: space-between; align-items: baseline; margin: 0 2px 11px; }
     .section-head h3 { margin: 0; font-size: 17px; letter-spacing: -.025em; }
     .section-head button { border: 0; background: none; color: var(--mint); padding: 5px; font-size: 12px; font-weight: 700; }
-    
+
     .exercise { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; margin-bottom: 10px; overflow: hidden; transition: border-color .2s, background .2s; }
     .exercise.completed { background: #1a2927; border-color: #3c5f55; }
     .exercise-main { width: 100%; border: 0; background: none; display: flex; align-items: center; padding: 15px 14px; gap: 12px; text-align: left; }
@@ -89,7 +83,7 @@
     .exercise-meta { color: var(--muted); font-size: 12px; margin-top: 2px; }
     .chevron { font-size: 18px; color: var(--muted); transform: rotate(0); transition: .2s; }
     .exercise.open .chevron { transform: rotate(90deg); }
-    
+
     .detail { display: none; border-top: 1px solid var(--line); padding: 13px 14px 14px; }
     .open .detail { display: block; }
     .sets-label { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; display: grid; grid-template-columns: 28px 1fr 1fr 39px; gap: 7px; padding: 0 4px 7px; }
@@ -100,12 +94,12 @@
     .set-done { height: 38px; border: 1px solid var(--line); background: #11191b; border-radius: 9px; color: var(--quiet); font-size: 16px; }
     .set-done.on { background: rgba(114,228,193,.14); border-color: var(--mint); color: var(--mint); }
     .add-set { width: 100%; background: transparent; border: 1px dashed #526363; color: var(--mint); border-radius: 9px; height: 37px; margin-top: 3px; font-size: 12px; font-weight: 700; }
-    
+
     .rest-card { border: 1px solid var(--line); background: var(--panel); border-radius: 22px; padding: 35px 23px; text-align: center; }
     .rest-card .moon { font-size: 38px; }
     .rest-card h2 { margin: 8px 0 5px; font-size: 23px; letter-spacing: -.04em; }
     .rest-card p { color: var(--muted); margin: 0 auto; max-width: 260px; font-size: 13px; }
-    
+
     .reset { width: 100%; margin-top: 12px; padding: 11px; border: 0; background: transparent; color: #869292; font-size: 12px; }
 
     /* Modal Sheet */
@@ -119,10 +113,11 @@
     .field input { width: 100%; height: 44px; background: #11191b; border: 1px solid var(--line); color: var(--ink); border-radius: 11px; padding: 0 12px; }
     .save { width: 100%; height: 48px; border: 0; background: var(--lime); color: #172014; border-radius: 13px; font-weight: 800; margin-top: 3px; }
 
-    /* Analytics View & Cards */
+    /* Analytics */
     .chart-card { background: var(--panel); border: 1px solid var(--line); border-radius: 20px; padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow); }
     .chart-card h4 { margin: 0 0 12px; font-size: 13px; font-weight: 750; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
-    .canvas-container { position: relative; width: 100%; height: 180px; }
+    .canvas-wrap { width: 100%; height: 180px; display: block; }
+    .canvas-wrap canvas { display: block; width: 100%; height: 100%; }
 
     .tool-btn { border: 1px solid var(--line); background: var(--panel-2); color: var(--ink); border-radius: 10px; padding: 8px 14px; font-size: 12px; font-weight: 750; margin-right: 6px; }
 
@@ -138,95 +133,75 @@
 </head>
 <body>
   <main class="app">
-    <!-- Top Header -->
     <header class="top">
       <div>
         <div class="eyebrow" id="dateLabel"></div>
         <h1>Form</h1>
       </div>
-      <button class="icon-btn" id="editPlan" aria-label="Edit current workout">⋯</button>
+      <button class="icon-btn" id="editPlan" aria-label="Add exercise">⋯</button>
     </header>
 
-    <!-- Navigation Tabs -->
     <nav class="view-tabs">
       <button class="tab-btn active" data-target="view-workout">Workout</button>
       <button class="tab-btn" data-target="view-charts">Progress</button>
       <button class="tab-btn" data-target="view-backup">Backup</button>
     </nav>
 
-    <!-- VIEW 1: WORKOUT (Original Regime) -->
+    <!-- VIEW 1: WORKOUT -->
     <section class="view-section active" id="view-workout">
-      <!-- Days of week selector -->
       <nav class="week" id="week" aria-label="Days of the week"></nav>
-      <!-- Hero card -->
       <section class="hero" id="hero"></section>
-      <!-- Quick stats -->
       <section class="quick">
-        <div class="quick-card"><span>Weekly progress</span><b id="weeklyStat">0 / 0</b></div>
-        <div class="quick-card"><span>Completed today</span><b id="todayStat">0 / 0</b></div>
+        <div class="quick-card"><span>This week</span><b id="weeklyStat">0 / 0</b></div>
+        <div class="quick-card"><span>Today done</span><b id="todayStat">0 / 0</b></div>
       </section>
-
-
-
-      <!-- Workout exercises list -->
       <section id="workout"></section>
     </section>
 
-    <!-- VIEW 2: PROGRESS CHARTS (0 Dependency Native Canvas) -->
+    <!-- VIEW 2: PROGRESS CHARTS -->
     <section class="view-section" id="view-charts">
       <div class="quick" style="margin-bottom:16px;">
-        <div class="quick-card"><span>Current Streak</span><b id="chartStreak">0 Days</b></div>
+        <div class="quick-card"><span>Active Days</span><b id="chartStreak">0 Days</b></div>
         <div class="quick-card"><span>Weekly Rate</span><b id="chartWeeklyRate">0%</b></div>
       </div>
-
       <div class="chart-card">
-        <h4>Daily Activity Trend (Line)</h4>
-        <div class="canvas-container">
-          <canvas id="lineChartCanvas"></canvas>
-        </div>
+        <h4>Daily Activity — Last 7 Days</h4>
+        <div class="canvas-wrap" id="lineWrap"><canvas id="lineCanvas"></canvas></div>
       </div>
-
       <div class="chart-card">
-        <h4>Weekly Workouts Completed (Bar)</h4>
-        <div class="canvas-container">
-          <canvas id="barChartCanvas"></canvas>
-        </div>
+        <h4>This Week — Exercises Completed</h4>
+        <div class="canvas-wrap" id="barWrap"><canvas id="barCanvas"></canvas></div>
       </div>
-
       <div class="chart-card">
-        <h4>Completion Rate (Doughnut)</h4>
-        <div class="canvas-container">
-          <canvas id="doughnutChartCanvas"></canvas>
-        </div>
+        <h4>Today — Completion Rate</h4>
+        <div class="canvas-wrap" id="doughnutWrap"><canvas id="doughnutCanvas"></canvas></div>
       </div>
     </section>
 
-    <!-- VIEW 3: BACKUP & SETTINGS -->
+    <!-- VIEW 3: BACKUP -->
     <section class="view-section" id="view-backup">
       <div class="chart-card">
         <h4>Data Backup & Restore</h4>
-        <p style="color:var(--muted); font-size:13px; margin:0 0 14px;">Export all your workout logs to a JSON file or import a backup.</p>
+        <p style="color:var(--muted);font-size:13px;margin:0 0 14px;">All workout progress is saved automatically. Export to keep a copy.</p>
         <div>
           <button class="tool-btn" id="exportDataBtn">Export JSON</button>
           <button class="tool-btn" id="importDataBtn">Import JSON</button>
           <input type="file" id="importFileInput" accept=".json" style="display:none">
         </div>
       </div>
-
       <div class="chart-card">
-        <h4>Reset Application Data</h4>
-        <p style="color:var(--muted); font-size:13px; margin:0 0 14px;">Clear all stored logs and reset workouts back to default.</p>
-        <button class="tool-btn" id="resetDataBtn" style="color:var(--danger); border-color:rgba(255,138,130,.4);">Reset All Data</button>
+        <h4>Reset All Data</h4>
+        <p style="color:var(--muted);font-size:13px;margin:0 0 14px;">This will erase all workout history permanently.</p>
+        <button class="tool-btn" id="resetDataBtn" style="color:var(--danger);border-color:rgba(255,138,130,.4);">Reset All Data</button>
       </div>
     </section>
-
   </main>
 
-  <!-- Add Exercise Sheet Modal -->
-  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <!-- Add Exercise Sheet -->
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true">
     <div class="sheet-inner">
       <div class="handle"></div>
-      <h2 id="sheetTitle">Add an exercise</h2>
+      <h2>Add exercise</h2>
       <div class="field">
         <label for="exerciseName">Exercise name</label>
         <input id="exerciseName" autocomplete="off" placeholder="e.g. Cable row">
@@ -243,374 +218,582 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    // ORIGINAL 7-DAY WORKOUT REGIME PLAN
-    const plan = [
-      {
-        id:'mon', short:'M', day:'Mon', title:'Legs (Quad Focus) + Tricep', focus:'Quads, hamstrings & tricep',
-        exercises:[
-          ['Barbell Squat / Leg Press','3–4 × 6–8','RR 2'],
-          ['Leg Extension','3 × 10–15','RR 1'],
-          ['Bulgarian Split Squat','2–3 × 8–12','RR 2'],
-          ['Hamstring Curl','3 × 10–15','RR 1'],
-          ['Tricep Pushdown','3 × 10–15','RR 1'],
-          ['Overhead Tricep Extension','2 × 10–15','RR 1']
-        ]
-      },
-      {
-        id:'tue', short:'T', day:'Tue', title:'Upper Pull + Shoulders + Bicep', focus:'Back, shoulders & bicep',
-        exercises:[
-          ['Lat Pulldown / Pull Up','2–3 × 6–10','RR 2'],
-          ['Chest Supported Row','3 × 6–11','RR 2'],
-          ['Single Arm Cable Pulldown','2–3 × 10–15','RR 1'],
-          ['Shoulder Press','2–3 × 8–10','RR 2'],
-          ['Lateral Raise','3 × 12–20','RR 1'],
-          ['Rear Delt Fly','2–3 × 15–20','RR 1'],
-          ['Hammer Curl','2–3 × 10–15','RR 1']
-        ]
-      },
-      {
-        id:'wed', short:'W', day:'Wed', title:'Chest Focus', focus:'Chest & pec hypertrophy',
-        exercises:[
-          ['Incline Barbell Press','2–3 × 6–10','RR 2'],
-          ['Flat DB / Smith Press','3 × 8–13','RR 2'],
-          ['Cable Fly (High → Low)','3 × 12–15','RR 1'],
-          ['Machine Press (optional)','3 × 10–15','RR 1']
-        ]
-      },
-      {id:'thu', short:'T', day:'Thu', title:'Rest & Recover', focus:'Walk, stretch or do nothing', rest:true, exercises:[]},
-      {
-        id:'fri', short:'F', day:'Fri', title:'Legs (Hamstring Focus) + Tricep', focus:'Hamstrings, tricep & quads',
-        exercises:[
-          ['Romanian Deadlift','3–4 × 6–10','RR 2'],
-          ['Lying Leg Curl','3 × 10–18','RR 1'],
-          ['Leg Press (feet high)','2–3 × 10–15','RR 2'],
-          ['Leg Extension','3 × 10–15','RR 1'],
-          ['Skullcrusher / Dip','3 × 6–12','RR 1'],
-          ['Tricep Pushdown','3 × 10–15','RR 1']
-        ]
-      },
-      {
-        id:'sat', short:'S', day:'Sat', title:'Back + Shoulders (Hypertrophy)', focus:'Back & shoulder hypertrophy',
-        exercises:[
-          ['Seated Cable Row','3 × 8–13','RR 2'],
-          ['Neutral Grip Pulldown','3 × 8–13','RR 2'],
-          ['Single Arm Pulldown','3 × 12–16','RR 1'],
-          ['Rear Delt + Lateral Raise (Superset)','3 × 12–20','RR 1'],
-          ['Shrugs','2–3 × 10–15','RR 1']
-        ]
-      },
-      {
-        id:'sun', short:'S', day:'Sun', title:'Chest + Bicep', focus:'Chest & bicep hypertrophy',
-        exercises:[
-          ['Incline DB Press','3 × 6–10','RR 2'],
-          ['Flat Press','3 × 6–10','RR 2'],
-          ['Cable Fly (Low → High)','2–3 × 12–15','RR 1'],
-          ['Barbell Curl','3 × 6–12','RR 1'],
-          ['Incline DB Curl','2 × 10–15','RR 1']
-        ]
-      }
-    ];
+  // ============================================================
+  // WORKOUT PLAN — Original 33-exercise regime
+  // ============================================================
+  const PLAN = [
+    {
+      id:'mon', short:'M', day:'Mon', title:'Legs (Quad Focus) + Tricep', focus:'Quads, hamstrings & tricep',
+      exercises:[
+        ['Barbell Squat / Leg Press','3–4 × 6–8','RR 2'],
+        ['Leg Extension','3 × 10–15','RR 1'],
+        ['Bulgarian Split Squat','2–3 × 8–12','RR 2'],
+        ['Hamstring Curl','3 × 10–15','RR 1'],
+        ['Tricep Pushdown','3 × 10–15','RR 1'],
+        ['Overhead Tricep Extension','2 × 10–15','RR 1']
+      ]
+    },
+    {
+      id:'tue', short:'T', day:'Tue', title:'Upper Pull + Shoulders + Bicep', focus:'Back, shoulders & bicep',
+      exercises:[
+        ['Lat Pulldown / Pull Up','2–3 × 6–10','RR 2'],
+        ['Chest Supported Row','3 × 6–11','RR 2'],
+        ['Single Arm Cable Pulldown','2–3 × 10–15','RR 1'],
+        ['Shoulder Press','2–3 × 8–10','RR 2'],
+        ['Lateral Raise','3 × 12–20','RR 1'],
+        ['Rear Delt Fly','2–3 × 15–20','RR 1'],
+        ['Hammer Curl','2–3 × 10–15','RR 1']
+      ]
+    },
+    {
+      id:'wed', short:'W', day:'Wed', title:'Chest Focus', focus:'Chest & pec hypertrophy',
+      exercises:[
+        ['Incline Barbell Press','2–3 × 6–10','RR 2'],
+        ['Flat DB / Smith Press','3 × 8–13','RR 2'],
+        ['Cable Fly (High → Low)','3 × 12–15','RR 1'],
+        ['Machine Press (optional)','3 × 10–15','RR 1']
+      ]
+    },
+    {id:'thu', short:'T', day:'Thu', title:'Rest & Recover', focus:'Walk, stretch or do nothing', rest:true, exercises:[]},
+    {
+      id:'fri', short:'F', day:'Fri', title:'Legs (Hamstring Focus) + Tricep', focus:'Hamstrings, tricep & quads',
+      exercises:[
+        ['Romanian Deadlift','3–4 × 6–10','RR 2'],
+        ['Lying Leg Curl','3 × 10–18','RR 1'],
+        ['Leg Press (feet high)','2–3 × 10–15','RR 2'],
+        ['Leg Extension','3 × 10–15','RR 1'],
+        ['Skullcrusher / Dip','3 × 6–12','RR 1'],
+        ['Tricep Pushdown','3 × 10–15','RR 1']
+      ]
+    },
+    {
+      id:'sat', short:'S', day:'Sat', title:'Back + Shoulders (Hypertrophy)', focus:'Back & shoulder hypertrophy',
+      exercises:[
+        ['Seated Cable Row','3 × 8–13','RR 2'],
+        ['Neutral Grip Pulldown','3 × 8–13','RR 2'],
+        ['Single Arm Pulldown','3 × 12–16','RR 1'],
+        ['Rear Delt + Lateral Raise (Superset)','3 × 12–20','RR 1'],
+        ['Shrugs','2–3 × 10–15','RR 1']
+      ]
+    },
+    {
+      id:'sun', short:'S', day:'Sun', title:'Chest + Bicep', focus:'Chest & bicep hypertrophy',
+      exercises:[
+        ['Incline DB Press','3 × 6–10','RR 2'],
+        ['Flat Press','3 × 6–10','RR 2'],
+        ['Cable Fly (Low → High)','2–3 × 12–15','RR 1'],
+        ['Barbell Curl','3 × 6–12','RR 1'],
+        ['Incline DB Curl','2 × 10–15','RR 1']
+      ]
+    }
+  ];
 
-    const storageKey = 'form-workout-v2';
-    let state = JSON.parse(localStorage.getItem(storageKey) || '{}');
-    let customExercises = JSON.parse(localStorage.getItem('form-custom-exercises') || '{}');
-    let selected = plan[(new Date().getDay()+6)%7].id;
+  // ============================================================
+  // STORAGE — keyed by YYYY-MM-DD so every day's data is saved
+  // independently forever (no data ever gets overwritten)
+  // ============================================================
+  const STORE_KEY = 'form-logs-v1';
+  const CUSTOM_KEY = 'form-custom-v1';
 
-    const $ = s => document.querySelector(s);
-    const save = () => { 
-      localStorage.setItem(storageKey, JSON.stringify(state)); 
-      localStorage.setItem('form-custom-exercises', JSON.stringify(customExercises));
-    };
+  function loadLogs()   { try { return JSON.parse(localStorage.getItem(STORE_KEY)  || '{}'); } catch{ return {}; } }
+  function loadCustom() { try { return JSON.parse(localStorage.getItem(CUSTOM_KEY) || '{}'); } catch{ return {}; } }
 
-    const ensure = id => state[id] ||= {completed:false, open:false, sets:[]};
-    const current = () => plan.find(d=>d.id===selected);
-    const exercisesFor = day => [...day.exercises,...(customExercises[day.id] || [])];
-    const allExercises = () => plan.flatMap(d=>exercisesFor(d).map((_,i)=>`${d.id}-${i}`));
-    const progress = day => { if(day.rest) return [0,0]; const ids=exercisesFor(day).map((_,i)=>`${day.id}-${i}`); return [ids.filter(id=>state[id]?.completed).length,ids.length]; };
+  let logs   = loadLogs();    // { "2025-07-21": { "0": {completed, open, sets}, ... } }
+  let custom = loadCustom();  // { "mon": [["name","sets","note"], ...] }
 
-    function localDate(){ $('#dateLabel').textContent=new Intl.DateTimeFormat('en-US',{weekday:'long',month:'short',day:'numeric'}).format(new Date()); }
-    function renderWeek(){ const el=$('#week'); el.innerHTML=''; plan.forEach(day=>{const [done,total]=progress(day); const b=document.createElement('button'); b.className=`day ${day.id===selected?'active':''} ${day.rest?'rest':''} ${total&&done===total?'done':''}`; b.innerHTML=`${day.day}<b>${day.short}</b>`; b.onclick=()=>{selected=day.id;render()}; el.append(b); }); }
-    function renderHero(){ const day=current(), [done,total]=progress(day), pct=total?Math.round(done/total*100):0; $('#hero').innerHTML=day.rest?`<div class="hero-row"><div><div class="eyebrow">Recovery day</div><h2>${day.title}</h2><p>${day.focus}</p></div><div class="score">☾<small>go easy</small></div></div>`:`<div class="hero-row"><div><div class="eyebrow">Today's session</div><h2>${day.title}</h2><p>${day.focus}</p></div><div class="score">${pct}%<small>${done} of ${total} done</small></div></div><div class="track"><div class="fill" style="width:${pct}%"></div></div>`; }
-    function renderStats(){ const ids=allExercises(), done=ids.filter(id=>state[id]?.completed).length, [todayDone,todayTotal]=progress(current()); $('#weeklyStat').textContent=`${done} / ${ids.length}`; $('#todayStat').textContent=`${todayDone} / ${todayTotal}`; }
-    function setRows(id, ex){ const s=ensure(id); const count=Math.max(2, Number((ex[1]||'3').match(/^\d+/)?.[0]||3),s.sets.length); while(s.sets.length<count)s.sets.push({weight:'',reps:'',done:false}); return `<div class="sets-label"><span>Set</span><span>kg</span><span>reps</span><span></span></div>${s.sets.map((set,i)=>`<div class="set"><div class="set-no">${i+1}</div><input aria-label="Set ${i+1} weight" inputmode="decimal" type="number" placeholder="—" value="${set.weight}" data-input="weight" data-id="${id}" data-set="${i}"><input aria-label="Set ${i+1} reps" inputmode="numeric" type="number" placeholder="—" value="${set.reps}" data-input="reps" data-id="${id}" data-set="${i}"><button class="set-done ${set.done?'on':''}" data-setdone="${id}" data-index="${i}" aria-label="Mark set ${i+1} complete">✓</button></div>`).join('')}<button class="add-set" data-addset="${id}">+ Add set</button>`; }
-    
-    function renderWorkout(){ const el=$('#workout'), day=current(); if(day.rest){el.innerHTML=`<div class="rest-card"><div class="moon">☾</div><h2>Recovery counts.</h2><p>No training scheduled. Let your body adapt — an easy walk or a little mobility is plenty.</p></div>`; return;} const [done,total]=progress(day), exercises=exercisesFor(day); el.innerHTML=`<div class="section-head"><h3>Exercises</h3><button id="addExercise">+ Add exercise</button></div>${exercises.map((ex,i)=>{let id=`${day.id}-${i}`,s=ensure(id);return `<article class="exercise ${s.completed?'completed':''} ${s.open?'open':''}" data-card="${id}"><button class="exercise-main" data-toggle="${id}" aria-expanded="${s.open}"><span class="check" data-complete="${id}" role="button" tabindex="0" aria-label="Mark ${ex[0]} complete">✓</span><span class="exercise-info"><span class="exercise-name">${ex[0]}</span><span class="exercise-meta">${ex[1]} · ${ex[2]||'log your work'}</span></span><span class="chevron">›</span></button><div class="detail">${setRows(id,ex)}</div></article>`}).join('')}<button class="reset" id="resetDay">Reset ${day.day}'s log</button>`; bindWorkout(); }
-    
-    function bindWorkout(){ document.querySelectorAll('[data-toggle]').forEach(b=>b.onclick=()=>{const s=ensure(b.dataset.toggle); s.open=!s.open;save();renderWorkout()}); document.querySelectorAll('[data-complete]').forEach(b=>{const toggle=e=>{e.preventDefault();e.stopPropagation();const s=ensure(b.dataset.complete);s.completed=!s.completed;save();render();toast(s.completed?'Exercise complete':'Exercise reopened')};b.onclick=toggle;b.onpointerdown=e=>e.stopPropagation();b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){toggle(e)}}}); document.querySelectorAll('[data-setdone]').forEach(b=>b.onclick=()=>{const s=ensure(b.dataset.setdone);s.sets[+b.dataset.index].done=!s.sets[+b.dataset.index].done;save();renderWorkout()}); document.querySelectorAll('[data-addset]').forEach(b=>b.onclick=()=>{ensure(b.dataset.addset).sets.push({weight:'',reps:'',done:false});save();renderWorkout()}); document.querySelectorAll('[data-input]').forEach(i=>i.oninput=()=>{ensure(i.dataset.id).sets[+i.dataset.set][i.dataset.input]=i.value;save()}); $('#addExercise').onclick=()=>$('#sheet').classList.add('show'); $('#resetDay').onclick=()=>{if(confirm(`Reset ${current().day}'s workout log?`)){Object.keys(state).filter(key=>key.startsWith(`${selected}-`)).forEach(key=>delete state[key]);save();render();}}; }
+  function saveLogs()   { localStorage.setItem(STORE_KEY,  JSON.stringify(logs));   }
+  function saveCustom() { localStorage.setItem(CUSTOM_KEY, JSON.stringify(custom)); }
 
-    function render(){localDate();renderWeek();renderHero();renderStats();renderWorkout();}
-    function toast(text){const t=$('#toast');t.textContent=text;t.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove('show'),1800)}
+  // Helpers
+  function isoDate(d) { return d.toISOString().split('T')[0]; }
 
-    // TAB SWITCHING
-    document.querySelectorAll('.tab-btn').forEach(btn => {
+  // Get the actual calendar date for a given PLAN day in the current display week
+  // weekDates is the Mon-Sun array for the currently viewed week
+  let weekDates = [];   // populated in buildWeek()
+
+  function planIndexForId(id) { return PLAN.findIndex(d => d.id === id); }
+
+  // Which date is currently selected
+  const todayDate = isoDate(new Date());
+  let selectedDate = todayDate;   // YYYY-MM-DD string
+  let selectedPlanId = PLAN[(new Date().getDay() + 6) % 7].id; // mon/tue/...
+
+  function ensureEntry(dateStr, idx) {
+    if (!logs[dateStr]) logs[dateStr] = {};
+    if (!logs[dateStr][idx]) logs[dateStr][idx] = { completed:false, open:false, sets:[] };
+    return logs[dateStr][idx];
+  }
+
+  // ============================================================
+  // PLAN helpers
+  // ============================================================
+  function planForId(id)    { return PLAN.find(d => d.id === id); }
+  function exercisesFor(id) { return [...(planForId(id).exercises || []), ...(custom[id] || [])]; }
+
+  function progressForDate(dateStr, planId) {
+    const exs = exercisesFor(planId);
+    if (!exs.length) return [0, 0];
+    const done = exs.filter((_, i) => logs[dateStr]?.[i]?.completed).length;
+    return [done, exs.length];
+  }
+
+  // ============================================================
+  // WEEK BAR — shows actual calendar dates Mon–Sun
+  // ============================================================
+  function buildWeekDates() {
+    // Build Mon–Sun dates for the week containing selectedDate
+    const d = new Date(selectedDate + 'T00:00:00');
+    const dow = (d.getDay() + 6) % 7; // 0=Mon, 6=Sun
+    const monday = new Date(d);
+    monday.setDate(d.getDate() - dow);
+    weekDates = Array.from({length:7}, (_, i) => {
+      const x = new Date(monday);
+      x.setDate(monday.getDate() + i);
+      return x;
+    });
+  }
+
+  function renderWeek() {
+    buildWeekDates();
+    const el = document.getElementById('week');
+    el.innerHTML = '';
+    PLAN.forEach((day, i) => {
+      const date = weekDates[i];
+      const dateStr = isoDate(date);
+      const [done, total] = day.rest ? [0,0] : progressForDate(dateStr, day.id);
+      const isSelected = dateStr === selectedDate;
+      const isDone = total > 0 && done === total;
+      const btn = document.createElement('button');
+      btn.className = `day ${isSelected?'active':''} ${day.rest?'rest':''} ${isDone&&!isSelected?'done':''}`;
+      btn.innerHTML = `${day.day}<b>${date.getDate()}</b>`;
       btn.onclick = () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-        btn.classList.add('active');
-        const target = btn.dataset.target;
-        $('#' + target).classList.add('active');
-
-        if (target === 'view-charts') {
-          setTimeout(renderCanvasCharts, 50);
-        }
-      };
-    });
-
-    $('#editPlan').onclick=()=>$('#sheet').classList.add('show'); 
-    $('#closeSheet').onclick=()=>$('#sheet').classList.remove('show'); 
-    $('#sheet').onclick=e=>{if(e.target===$('#sheet'))$('#sheet').classList.remove('show')}; 
-    $('#saveExercise').onclick=()=>{
-      const name=$('#exerciseName').value.trim(), sets=Math.min(12,Math.max(1,+$('#exerciseSets').value||3));
-      if(!name){$('#exerciseName').focus();return;}
-      if(current().rest){toast('Choose a training day first');return;}
-      (customExercises[selected] ||= []).push([name,`${sets} sets`,'']);
-      save();
-      $('#exerciseName').value='';
-      $('#sheet').classList.remove('show');
-      render();
-      toast('Exercise added');
-    };
-
-    if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
-
-    // BACKUP & RESTORE EVENTS
-    $('#exportDataBtn').onclick = () => {
-      const backupData = {
-        state: state,
-        customExercises: customExercises
-      };
-      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `form-workout-backup-${new Date().toISOString().split('T')[0]}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast('Backup exported');
-    };
-
-    $('#importDataBtn').onclick = () => $('#importFileInput').click();
-    $('#importFileInput').onchange = (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const imported = JSON.parse(event.target.result);
-          if (imported.state) {
-            state = imported.state;
-            customExercises = imported.customExercises || {};
-            save();
-            render();
-            toast('Backup restored!');
-          }
-        } catch (err) { alert('Invalid backup file.'); }
-      };
-      reader.readAsText(file);
-    };
-
-    $('#resetDataBtn').onclick = () => {
-      if (confirm('Reset all workout logs and custom exercises?')) {
-        localStorage.removeItem(storageKey);
-        localStorage.removeItem('form-custom-exercises');
-        state = {};
-        customExercises = {};
+        selectedDate = dateStr;
+        selectedPlanId = day.id;
         render();
-        toast('Data reset');
-      }
-    };
+      };
+      el.appendChild(btn);
+    });
+  }
 
-    // ==========================================
-    // 0-DEPENDENCY HTML5 CANVAS CHARTS ENGINE
-    // ==========================================
-    // Polyfill: ctx.roundRect not available on iOS Safari < 16
-    function fillRoundRect(ctx, x, y, w, h, r) {
-      if (w < 2 * r) r = w / 2;
-      if (h < 2 * r) r = h / 2;
-      ctx.beginPath();
-      ctx.moveTo(x + r, y);
-      ctx.arcTo(x + w, y,     x + w, y + h, r);
-      ctx.arcTo(x + w, y + h, x,     y + h, 0);
-      ctx.arcTo(x,     y + h, x,     y,     0);
-      ctx.arcTo(x,     y,     x + w, y,     r);
-      ctx.closePath();
-      ctx.fill();
+  // ============================================================
+  // HERO & STATS
+  // ============================================================
+  function renderHero() {
+    const day = planForId(selectedPlanId);
+    const [done, total] = day.rest ? [0,0] : progressForDate(selectedDate, selectedPlanId);
+    const pct = total ? Math.round(done/total*100) : 0;
+    const el = document.getElementById('hero');
+    el.innerHTML = day.rest
+      ? `<div class="hero-row"><div><div class="eyebrow">Recovery day</div><h2>${day.title}</h2><p>${day.focus}</p></div><div class="score">☾<small>go easy</small></div></div>`
+      : `<div class="hero-row"><div><div class="eyebrow">Session</div><h2>${day.title}</h2><p>${day.focus}</p></div><div class="score">${pct}%<small>${done} of ${total} done</small></div></div><div class="track"><div class="fill" style="width:${pct}%"></div></div>`;
+  }
+
+  function renderStats() {
+    // Weekly: sum across all non-rest days in current weekDates
+    let weekDone = 0, weekTotal = 0;
+    PLAN.forEach((day, i) => {
+      if (day.rest) return;
+      const dateStr = isoDate(weekDates[i]);
+      const [d, t] = progressForDate(dateStr, day.id);
+      weekDone += d; weekTotal += t;
+    });
+    document.getElementById('weeklyStat').textContent = `${weekDone} / ${weekTotal}`;
+    const [td, tt] = planForId(selectedPlanId).rest ? [0,0] : progressForDate(selectedDate, selectedPlanId);
+    document.getElementById('todayStat').textContent = `${td} / ${tt}`;
+  }
+
+  // ============================================================
+  // WORKOUT EXERCISES
+  // ============================================================
+  function setRowsHTML(dateStr, exIdx, ex) {
+    const entry = ensureEntry(dateStr, exIdx);
+    const defaultSets = parseInt((ex[1]||'3').match(/\d+/)?.[0] || 3);
+    while (entry.sets.length < Math.max(2, defaultSets)) entry.sets.push({weight:'',reps:'',done:false});
+    return `<div class="sets-label"><span>Set</span><span>kg</span><span>reps</span><span></span></div>` +
+      entry.sets.map((s, si) =>
+        `<div class="set"><div class="set-no">${si+1}</div>` +
+        `<input type="number" inputmode="decimal" placeholder="—" value="${s.weight}" data-input="weight" data-date="${dateStr}" data-ex="${exIdx}" data-set="${si}">` +
+        `<input type="number" inputmode="numeric" placeholder="—" value="${s.reps}" data-input="reps" data-date="${dateStr}" data-ex="${exIdx}" data-set="${si}">` +
+        `<button class="set-done${s.done?' on':''}" data-setdone="${exIdx}" data-date="${dateStr}" data-index="${si}">✓</button></div>`
+      ).join('') +
+      `<button class="add-set" data-addset="${exIdx}" data-date="${dateStr}">+ Add set</button>`;
+  }
+
+  function renderWorkout() {
+    const el = document.getElementById('workout');
+    const day = planForId(selectedPlanId);
+    if (day.rest) {
+      el.innerHTML = `<div class="rest-card"><div class="moon">☾</div><h2>Recovery counts.</h2><p>No training today — let your body adapt. A short walk or some mobility work is plenty.</p></div>`;
+      return;
     }
-    // Safe canvas sizing — getBoundingClientRect returns 0 on iOS when tab not yet painted
-    function setupCanvas(canvas) {
-      const rect = canvas.getBoundingClientRect();
-      const w = rect.width  || canvas.parentElement.clientWidth  || 300;
-      const h = rect.height || canvas.parentElement.clientHeight || 180;
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width  = w * dpr;
-      canvas.height = h * dpr;
-      return { w: canvas.width, h: canvas.height, dpr };
-    }
-    function renderCanvasCharts() {
-      renderLineChart();
-      renderBarChart();
-      renderDoughnutChart();
-    }
+    const exs = exercisesFor(selectedPlanId);
+    el.innerHTML =
+      `<div class="section-head"><h3>Exercises</h3><button id="addExBtn">+ Add</button></div>` +
+      exs.map((ex, i) => {
+        const entry = logs[selectedDate]?.[i];
+        const completed = entry?.completed || false;
+        const open = entry?.open || false;
+        return `<article class="exercise${completed?' completed':''}${open?' open':''}" data-card="${i}">` +
+          `<button class="exercise-main" data-toggle="${i}">` +
+          `<span class="check" data-complete="${i}" role="button" tabindex="0">✓</span>` +
+          `<span class="exercise-info"><span class="exercise-name">${ex[0]}</span><span class="exercise-meta">${ex[1]} · ${ex[2]||'log your work'}</span></span>` +
+          `<span class="chevron">›</span></button>` +
+          `<div class="detail">${setRowsHTML(selectedDate, i, ex)}</div></article>`;
+      }).join('') +
+      `<button class="reset" id="resetDayBtn">Reset this day's log</button>`;
 
-    // Line Chart (Daily Activity Trend)
-    function renderLineChart() {
-      const canvas = $('#lineChartCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const { w, h, dpr } = setupCanvas(canvas);
-      ctx.clearRect(0, 0, w, h);
+    bindWorkout();
+  }
 
-      const days = 7;
-      const labels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-      const values = plan.map(day => {
-        const [done, total] = progress(day);
-        return total > 0 && done === total ? 1 : (done > 0 ? 0.5 : 0);
-      });
-
-      const padX = 25 * dpr, padY = 25 * dpr;
-      const chartW = w - padX * 2, chartH = h - padY * 2;
-      const stepX = chartW / (days - 1);
-
-      // Grid line
-      ctx.strokeStyle = '#2b383b';
-      ctx.lineWidth = 1 * dpr;
-      ctx.beginPath();
-      ctx.moveTo(padX, h - padY);
-      ctx.lineTo(w - padX, h - padY);
-      ctx.stroke();
-
-      const points = values.map((val, idx) => ({
-        x: padX + idx * stepX,
-        y: (h - padY) - val * (chartH - 10 * dpr),
-        val,
-        label: labels[idx]
-      }));
-
-      // Gradient area
-      const grad = ctx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, 'rgba(114, 228, 193, 0.3)');
-      grad.addColorStop(1, 'rgba(114, 228, 193, 0.0)');
-
-      ctx.beginPath();
-      ctx.moveTo(points[0].x, points[0].y);
-      for(let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
-      ctx.lineTo(points[points.length - 1].x, h - padY);
-      ctx.lineTo(points[0].x, h - padY);
-      ctx.closePath();
-      ctx.fillStyle = grad;
-      ctx.fill();
-
-      // Line
-      ctx.strokeStyle = '#72e4c1';
-      ctx.lineWidth = 3 * dpr;
-      ctx.beginPath();
-      ctx.moveTo(points[0].x, points[0].y);
-      for(let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
-      ctx.stroke();
-
-      // Points & Labels
-      ctx.font = `bold ${10 * dpr}px sans-serif`;
-      ctx.textAlign = 'center';
-
-      points.forEach(p => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 4 * dpr, 0, Math.PI * 2);
-        ctx.fillStyle = p.val === 1 ? '#c9f66b' : (p.val > 0 ? '#72e4c1' : '#5e6b6b');
-        ctx.fill();
-
-        ctx.fillStyle = '#9ba7a6';
-        ctx.fillText(p.label, p.x, h - 6 * dpr);
-      });
-
-      // Update streak metrics
-      const doneDays = values.filter(v => v > 0).length;
-      $('#chartStreak').textContent = `${doneDays} Days`;
-      $('#chartWeeklyRate').textContent = `${Math.round((doneDays / 7) * 100)}%`;
-    }
-
-    // Bar Chart (Weekly Workouts)
-    function renderBarChart() {
-      const canvas = $('#barChartCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const { w, h, dpr } = setupCanvas(canvas);
-      ctx.clearRect(0, 0, w, h);
-
-      const days = plan.filter(d => !d.rest);
-      const barW = 28 * dpr;
-      const padX = 30 * dpr, padY = 25 * dpr;
-      const stepX = (w - padX * 2) / (days.length - 1);
-      const maxH = h - padY * 2;
-
-      days.forEach((day, i) => {
-        const [done, total] = progress(day);
-        const barH = total > 0 ? (done / total) * maxH : 0;
-        const x = padX + i * stepX - barW / 2;
-        const y = h - padY - barH;
-
-        ctx.fillStyle = done === total && total > 0 ? '#c9f66b' : '#72e4c1';
-        fillRoundRect(ctx, x, y, barW, Math.max(barH, 1), 5 * dpr);
-
-        ctx.fillStyle = '#9ba7a6';
-        ctx.font = `${10 * dpr}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.fillText(day.day, x + barW / 2, h - 6 * dpr);
-      });
-    }
-
-    // Doughnut Chart (Completion Rate)
-    function renderDoughnutChart() {
-      const canvas = $('#doughnutChartCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const { w, h, dpr } = setupCanvas(canvas);
-      ctx.clearRect(0, 0, w, h);
-
-      const ids = allExercises();
-      const doneCount = ids.filter(id => state[id]?.completed).length;
-      const totalCount = ids.length || 1;
-
-      const cx = w / 3, cy = h / 2, radius = Math.min(w, h) / 2.6;
-      const doneAngle = (doneCount / totalCount) * Math.PI * 2;
-
-      // Base circle
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-      ctx.strokeStyle = '#2b383b';
-      ctx.lineWidth = 16 * dpr;
-      ctx.stroke();
-
-      // Done segment
-      if (doneCount > 0) {
-        ctx.beginPath();
-        ctx.arc(cx, cy, radius, -Math.PI / 2, -Math.PI / 2 + doneAngle);
-        ctx.strokeStyle = '#72e4c1';
-        ctx.lineWidth = 16 * dpr;
-        ctx.stroke();
-      }
-
-      // Legend
-      const lx = w / 1.7, ly = h / 2 - 10 * dpr;
-      ctx.fillStyle = '#72e4c1';
-      ctx.fillRect(lx, ly, 10 * dpr, 10 * dpr);
-      ctx.fillStyle = '#f6f7f4';
-      ctx.font = `${11 * dpr}px sans-serif`;
-      ctx.textAlign = 'left';
-      ctx.fillText(`Completed (${doneCount})`, lx + 16 * dpr, ly + 9 * dpr);
-
-      ctx.fillStyle = '#2b383b';
-      ctx.fillRect(lx, ly + 22 * dpr, 10 * dpr, 10 * dpr);
-      ctx.fillStyle = '#9ba7a6';
-      ctx.fillText(`Remaining (${totalCount - doneCount})`, lx + 16 * dpr, ly + 31 * dpr);
-    }
-
-    window.addEventListener('resize', () => {
-      if ($('#view-charts').classList.contains('active')) {
-        renderCanvasCharts();
-      }
+  function bindWorkout() {
+    document.querySelectorAll('[data-toggle]').forEach(b => b.onclick = e => {
+      const idx = b.dataset.toggle;
+      const entry = ensureEntry(selectedDate, idx);
+      // Don't toggle complete when clicking circle
+      if (e.target.dataset.complete != null) return;
+      entry.open = !entry.open;
+      saveLogs(); renderWorkout();
     });
 
+    document.querySelectorAll('[data-complete]').forEach(span => {
+      const toggle = e => {
+        e.preventDefault(); e.stopPropagation();
+        const idx = span.dataset.complete;
+        const entry = ensureEntry(selectedDate, idx);
+        entry.completed = !entry.completed;
+        saveLogs(); render();
+        toast(entry.completed ? 'Completed ✓' : 'Reopened');
+      };
+      span.onclick = toggle;
+      span.onkeydown = e => { if (e.key==='Enter'||e.key===' ') toggle(e); };
+    });
+
+    document.querySelectorAll('[data-setdone]').forEach(b => b.onclick = () => {
+      const entry = ensureEntry(b.dataset.date, b.dataset.setdone);
+      entry.sets[+b.dataset.index].done = !entry.sets[+b.dataset.index].done;
+      saveLogs(); renderWorkout();
+    });
+
+    document.querySelectorAll('[data-addset]').forEach(b => b.onclick = () => {
+      ensureEntry(b.dataset.date, b.dataset.addset).sets.push({weight:'',reps:'',done:false});
+      saveLogs(); renderWorkout();
+    });
+
+    document.querySelectorAll('[data-input]').forEach(inp => inp.oninput = () => {
+      ensureEntry(inp.dataset.date, inp.dataset.ex).sets[+inp.dataset.set][inp.dataset.input] = inp.value;
+      saveLogs();
+    });
+
+    const addBtn = document.getElementById('addExBtn');
+    if (addBtn) addBtn.onclick = () => document.getElementById('sheet').classList.add('show');
+
+    const resetBtn = document.getElementById('resetDayBtn');
+    if (resetBtn) resetBtn.onclick = () => {
+      if (confirm('Reset this day's workout log?')) {
+        delete logs[selectedDate];
+        saveLogs(); render();
+        toast('Log reset');
+      }
+    };
+  }
+
+  // ============================================================
+  // MAIN RENDER
+  // ============================================================
+  function render() {
+    document.getElementById('dateLabel').textContent =
+      new Intl.DateTimeFormat('en-US',{weekday:'long',month:'short',day:'numeric'}).format(new Date(selectedDate + 'T00:00:00'));
+    renderWeek();
+    renderHero();
+    renderStats();
+    renderWorkout();
+  }
+
+  // ============================================================
+  // TABS
+  // ============================================================
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.target).classList.add('active');
+      if (btn.dataset.target === 'view-charts') scheduleCharts();
+    };
+  });
+
+  // ============================================================
+  // SHEET MODAL
+  // ============================================================
+  document.getElementById('editPlan').onclick = () => document.getElementById('sheet').classList.add('show');
+  document.getElementById('closeSheet').onclick = () => document.getElementById('sheet').classList.remove('show');
+  document.getElementById('sheet').onclick = e => { if (e.target === document.getElementById('sheet')) document.getElementById('sheet').classList.remove('show'); };
+  document.getElementById('saveExercise').onclick = () => {
+    const name = document.getElementById('exerciseName').value.trim();
+    const sets = Math.min(12, Math.max(1, +document.getElementById('exerciseSets').value || 3));
+    if (!name) { document.getElementById('exerciseName').focus(); return; }
+    const day = planForId(selectedPlanId);
+    if (day.rest) { toast('Pick a training day first'); return; }
+    (custom[selectedPlanId] ||= []).push([name, `${sets} sets`, '']);
+    saveCustom();
+    document.getElementById('exerciseName').value = '';
+    document.getElementById('sheet').classList.remove('show');
     render();
+    toast('Exercise added');
+  };
+
+  // ============================================================
+  // TOAST
+  // ============================================================
+  function toast(text) {
+    const t = document.getElementById('toast');
+    t.textContent = text;
+    t.classList.add('show');
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(() => t.classList.remove('show'), 1900);
+  }
+
+  // ============================================================
+  // BACKUP & RESTORE
+  // ============================================================
+  document.getElementById('exportDataBtn').onclick = () => {
+    const blob = new Blob([JSON.stringify({logs, custom}, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `form-backup-${todayDate}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('Backup exported');
+  };
+  document.getElementById('importDataBtn').onclick = () => document.getElementById('importFileInput').click();
+  document.getElementById('importFileInput').onchange = e => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const imp = JSON.parse(ev.target.result);
+        if (imp.logs) { logs = imp.logs; custom = imp.custom || {}; saveLogs(); saveCustom(); render(); toast('Restored!'); }
+      } catch { alert('Invalid backup file.'); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+  document.getElementById('resetDataBtn').onclick = () => {
+    if (confirm('Erase ALL workout history?')) {
+      logs = {}; custom = {}; saveLogs(); saveCustom(); render(); toast('Data cleared');
+    }
+  };
+
+  // ============================================================
+  // CANVAS CHARTS — iOS-safe, no roundRect, no CDN
+  // ============================================================
+
+  // Draw a filled rectangle with rounded top corners only (iOS safe)
+  function drawBar(ctx, x, y, w, h, r) {
+    r = Math.min(r, w/2, Math.abs(h)/2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h);
+    ctx.lineTo(x, y + h);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Reliable canvas sizing for iOS — never uses getBoundingClientRect
+  function sizeCanvas(canvas) {
+    const wrap = canvas.parentElement;
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = wrap.offsetWidth  || 300;
+    const cssH = wrap.offsetHeight || 180;
+    canvas.width  = cssW * dpr;
+    canvas.height = cssH * dpr;
+    return { ctx: canvas.getContext('2d'), W: canvas.width, H: canvas.height, dpr, cssW, cssH };
+  }
+
+  // Line Chart: last 7 calendar days
+  function renderLineChart() {
+    const canvas = document.getElementById('lineCanvas');
+    if (!canvas) return;
+    const { ctx, W, H, dpr } = sizeCanvas(canvas);
+    ctx.clearRect(0, 0, W, H);
+
+    const days7 = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const ds = isoDate(d);
+      const dow = (d.getDay() + 6) % 7;
+      const planDay = PLAN[dow];
+      let val = 0;
+      if (!planDay.rest) {
+        const [done, total] = progressForDate(ds, planDay.id);
+        val = total > 0 ? done / total : 0;
+      }
+      days7.push({ label: ['M','T','W','T','F','S','S'][dow], val });
+    }
+
+    const px = 28*dpr, py = 20*dpr;
+    const cW = W - px*2, cH = H - py*2;
+    const stepX = cW / 6;
+
+    // Baseline
+    ctx.strokeStyle = '#2b383b'; ctx.lineWidth = dpr;
+    ctx.beginPath(); ctx.moveTo(px, H-py); ctx.lineTo(W-px, H-py); ctx.stroke();
+
+    const pts = days7.map((d, i) => ({ x: px + i*stepX, y: H - py - d.val*(cH-12*dpr), val: d.val, lbl: d.label }));
+
+    // Fill gradient
+    const g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'rgba(114,228,193,0.28)'); g.addColorStop(1,'rgba(114,228,193,0)');
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    pts.forEach(p => ctx.lineTo(p.x, p.y));
+    ctx.lineTo(pts[6].x, H-py); ctx.lineTo(pts[0].x, H-py); ctx.closePath();
+    ctx.fillStyle = g; ctx.fill();
+
+    // Line
+    ctx.strokeStyle = '#72e4c1'; ctx.lineWidth = 3*dpr; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+    pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke();
+
+    // Dots & labels
+    ctx.font = `bold ${10*dpr}px -apple-system,sans-serif`;
+    ctx.textAlign = 'center';
+    pts.forEach(p => {
+      ctx.beginPath(); ctx.arc(p.x, p.y, 4*dpr, 0, Math.PI*2);
+      ctx.fillStyle = p.val >= 1 ? '#c9f66b' : p.val > 0 ? '#72e4c1' : '#3a4a4c'; ctx.fill();
+      ctx.fillStyle = '#9ba7a6'; ctx.fillText(p.lbl, p.x, H - 5*dpr);
+    });
+
+    // Update stats
+    const activeDays = days7.filter(d => d.val > 0).length;
+    document.getElementById('chartStreak').textContent = `${activeDays} Days`;
+    document.getElementById('chartWeeklyRate').textContent = `${Math.round(activeDays/7*100)}%`;
+  }
+
+  // Bar Chart: this week's training days
+  function renderBarChart() {
+    const canvas = document.getElementById('barCanvas');
+    if (!canvas) return;
+    const { ctx, W, H, dpr } = sizeCanvas(canvas);
+    ctx.clearRect(0, 0, W, H);
+
+    const trainingDays = PLAN.map((day, i) => ({day, date: isoDate(weekDates[i])})).filter(x => !x.day.rest);
+    const n = trainingDays.length;
+    const px = 20*dpr, py = 20*dpr;
+    const cW = W - px*2, cH = H - py*2;
+    const gap = cW / n;
+    const barW = gap * 0.55;
+
+    ctx.strokeStyle = '#2b383b'; ctx.lineWidth = dpr;
+    ctx.beginPath(); ctx.moveTo(px, H-py); ctx.lineTo(W-px, H-py); ctx.stroke();
+
+    trainingDays.forEach(({day, date}, i) => {
+      const [done, total] = progressForDate(date, day.id);
+      const ratio = total > 0 ? done/total : 0;
+      const barH = Math.max(ratio * cH, ratio > 0 ? 4*dpr : 0);
+      const x = px + i*gap + (gap-barW)/2;
+      const y = H - py - barH;
+      ctx.fillStyle = done === total && total > 0 ? '#c9f66b' : '#72e4c1';
+      drawBar(ctx, x, y, barW, barH, 5*dpr);
+
+      ctx.fillStyle = '#9ba7a6';
+      ctx.font = `${9*dpr}px -apple-system,sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText(day.day, x + barW/2, H - 5*dpr);
+      if (total > 0) {
+        ctx.fillStyle = done === total ? '#c9f66b' : '#72e4c1';
+        ctx.fillText(`${done}/${total}`, x + barW/2, y > py+16*dpr ? y-5*dpr : y+14*dpr);
+      }
+    });
+  }
+
+  // Doughnut Chart: today's completion
+  function renderDoughnutChart() {
+    const canvas = document.getElementById('doughnutCanvas');
+    if (!canvas) return;
+    const { ctx, W, H, dpr } = sizeCanvas(canvas);
+    ctx.clearRect(0, 0, W, H);
+
+    const day = planForId(selectedPlanId);
+    const [done, total] = day.rest ? [0,0] : progressForDate(selectedDate, selectedPlanId);
+    const remaining = total - done;
+
+    const cx = W/2.6, cy = H/2, r = Math.min(W, H)*0.33;
+    const start = -Math.PI/2;
+    const doneArc = total > 0 ? (done/total)*Math.PI*2 : 0;
+
+    // Track
+    ctx.lineWidth = 18*dpr; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
+    ctx.strokeStyle = '#1f2e30'; ctx.stroke();
+
+    // Done arc
+    if (done > 0) {
+      ctx.beginPath(); ctx.arc(cx, cy, r, start, start+doneArc);
+      ctx.strokeStyle = done === total ? '#c9f66b' : '#72e4c1'; ctx.stroke();
+    }
+
+    // Center text
+    ctx.textAlign = 'center'; ctx.fillStyle = var_ink();
+    ctx.font = `bold ${20*dpr}px -apple-system,sans-serif`;
+    ctx.fillText(`${total>0?Math.round(done/total*100):0}%`, cx, cy+2*dpr);
+    ctx.fillStyle = '#9ba7a6';
+    ctx.font = `${9*dpr}px -apple-system,sans-serif`;
+    ctx.fillText('complete', cx, cy+13*dpr);
+
+    // Legend
+    const lx = W/1.68, ly = H/2 - 18*dpr;
+    ctx.textAlign = 'left';
+
+    ctx.fillStyle = done===total&&total>0 ? '#c9f66b' : '#72e4c1';
+    ctx.fillRect(lx, ly, 10*dpr, 10*dpr);
+    ctx.fillStyle = '#f6f7f4';
+    ctx.font = `${11*dpr}px -apple-system,sans-serif`;
+    ctx.fillText(`Done (${done})`, lx+14*dpr, ly+9*dpr);
+
+    ctx.fillStyle = '#1f2e30';
+    ctx.fillRect(lx, ly+22*dpr, 10*dpr, 10*dpr);
+    ctx.fillStyle = '#9ba7a6';
+    ctx.fillText(`Left (${remaining})`, lx+14*dpr, ly+31*dpr);
+  }
+
+  function var_ink() { return '#f6f7f4'; }
+
+  function renderAllCharts() {
+    renderLineChart();
+    renderBarChart();
+    renderDoughnutChart();
+  }
+
+  // Schedule charts after 2 animation frames — guarantees layout is computed on iOS
+  function scheduleCharts() {
+    requestAnimationFrame(() => requestAnimationFrame(() => renderAllCharts()));
+  }
+
+  window.addEventListener('resize', () => {
+    if (document.getElementById('view-charts').classList.contains('active')) scheduleCharts();
+  });
+
+  // ============================================================
+  // SERVICE WORKER
+  // ============================================================
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+  }
+
+  // ============================================================
+  // INIT
+  // ============================================================
+  // Set selectedPlanId to match today's weekday
+  const todayPlanIdx = (new Date().getDay() + 6) % 7;
+  selectedPlanId = PLAN[todayPlanIdx].id;
+
+  render();
   </script>
 </body>
 </html>
