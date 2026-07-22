@@ -575,142 +575,152 @@ function sizeCanvas(id) {
   const canvas = document.getElementById(id);
   const wrap   = canvas.parentElement;
   const dpr    = window.devicePixelRatio || 1;
-  const W      = (wrap.offsetWidth  || 300);
-  const H      = (wrap.offsetHeight || 180);
-  canvas.width  = W * dpr;
-  canvas.height = H * dpr;
-  return { ctx: canvas.getContext('2d'), W: W*dpr, H: H*dpr, dpr };
+  const cssW   = wrap.offsetWidth  || 300;
+  const cssH   = wrap.offsetHeight || 180;
+
+  canvas.width  = Math.floor(cssW * dpr);
+  canvas.height = Math.floor(cssH * dpr);
+
+  const ctx = canvas.getContext('2d');
+  if (ctx.resetTransform) {
+    ctx.resetTransform();
+  } else {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  ctx.scale(dpr, dpr);
+
+  return { ctx, W: cssW, H: cssH };
 }
 
 // Rounded-top bar (no ctx.roundRect needed)
 function drawBar(ctx, x, y, w, h, r) {
   if (h <= 0) return;
-  r = Math.min(r, w/2, h/2);
+  r = Math.min(r, w / 2, h / 2);
   ctx.beginPath();
-  ctx.moveTo(x+r, y);
-  ctx.lineTo(x+w-r, y);
-  ctx.quadraticCurveTo(x+w, y, x+w, y+r);
-  ctx.lineTo(x+w, y+h);
-  ctx.lineTo(x,   y+h);
-  ctx.lineTo(x,   y+r);
-  ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h);
+  ctx.lineTo(x, y + h);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
   ctx.closePath();
   ctx.fill();
 }
 
 function drawLine() {
-  const { ctx, W, H, dpr } = sizeCanvas('cvLine');
+  const { ctx, W, H } = sizeCanvas('cvLine');
   ctx.clearRect(0, 0, W, H);
-  const px = 28*dpr, py = 18*dpr, cH = H - py*2, cW = W - px*2;
+  const px = 28, py = 18, cH = H - py * 2, cW = W - px * 2;
 
   // last 7 local days
   const pts = Array.from({length:7}, (_, k) => {
-    const d   = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate() - (6-k));
+    const d   = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate() - (6 - k));
     const ds  = localISO(d);
     const dow = localDOW(d);
     const [done, total] = progress(ds, dow);
-    const val = total > 0 ? done/total : 0;
-    return { x: px + k*(cW/6), y: H-py - val*(cH-10*dpr), val, lbl: PLAN[dow].short };
+    const val = total > 0 ? done / total : 0;
+    return { x: px + k * (cW / 6), y: H - py - val * (cH - 10), val, lbl: PLAN[dow].short };
   });
 
   // Baseline
-  ctx.strokeStyle='#2b383b'; ctx.lineWidth=dpr;
-  ctx.beginPath(); ctx.moveTo(px,H-py); ctx.lineTo(W-px,H-py); ctx.stroke();
+  ctx.strokeStyle = '#2b383b'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(px, H - py); ctx.lineTo(W - px, H - py); ctx.stroke();
 
   // Gradient fill
-  const g = ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,'rgba(114,228,193,.28)'); g.addColorStop(1,'rgba(114,228,193,0)');
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, 'rgba(114,228,193,0.28)'); g.addColorStop(1, 'rgba(114,228,193,0)');
   ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
   pts.forEach(p => ctx.lineTo(p.x, p.y));
-  ctx.lineTo(pts[6].x,H-py); ctx.lineTo(pts[0].x,H-py); ctx.closePath();
-  ctx.fillStyle=g; ctx.fill();
+  ctx.lineTo(pts[6].x, H - py); ctx.lineTo(pts[0].x, H - py); ctx.closePath();
+  ctx.fillStyle = g; ctx.fill();
 
   // Line
-  ctx.strokeStyle='#72e4c1'; ctx.lineWidth=3*dpr; ctx.lineJoin='round';
+  ctx.strokeStyle = '#72e4c1'; ctx.lineWidth = 3; ctx.lineJoin = 'round';
   ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
   pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke();
 
   // Dots + labels
-  ctx.font=`bold ${10*dpr}px -apple-system,sans-serif`; ctx.textAlign='center';
+  ctx.font = 'bold 10px -apple-system,sans-serif'; ctx.textAlign = 'center';
   pts.forEach(p => {
-    ctx.beginPath(); ctx.arc(p.x, p.y, 4.5*dpr, 0, Math.PI*2);
-    ctx.fillStyle = p.val>=1 ? '#c9f66b' : p.val>0 ? '#72e4c1' : '#2b3c3f'; ctx.fill();
-    ctx.fillStyle='#9ba7a6'; ctx.fillText(p.lbl, p.x, H-4*dpr);
+    ctx.beginPath(); ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = p.val >= 1 ? '#c9f66b' : p.val > 0 ? '#72e4c1' : '#2b3c3f'; ctx.fill();
+    ctx.fillStyle = '#9ba7a6'; ctx.fillText(p.lbl, p.x, H - 4);
   });
 
   // Stats cards
-  const active = pts.filter(p=>p.val>0).length;
+  const active = pts.filter(p => p.val > 0).length;
   document.getElementById('cStreak').textContent = active;
-  document.getElementById('cRate').textContent   = `${Math.round(active/7*100)}%`;
+  document.getElementById('cRate').textContent   = `${Math.round(active / 7 * 100)}%`;
 }
 
 function drawBar_() {  // bar chart
-  const { ctx, W, H, dpr } = sizeCanvas('cvBar');
+  const { ctx, W, H } = sizeCanvas('cvBar');
   ctx.clearRect(0, 0, W, H);
-  const px = 18*dpr, py = 20*dpr, cH = H-py*2, cW = W-px*2;
-  const training = PLAN.map((d,i)=>({day:d, ds:weekDates[i], idx:i})).filter(x=>!x.day.rest);
-  const n = training.length, gap = cW/n, barW = gap*0.52;
+  const px = 18, py = 20, cH = H - py * 2, cW = W - px * 2;
+  const training = PLAN.map((d, i) => ({day: d, ds: weekDates[i], idx: i})).filter(x => !x.day.rest);
+  const n = training.length, gap = cW / n, barW = Math.min(28, gap * 0.52);
 
-  ctx.strokeStyle='#2b383b'; ctx.lineWidth=dpr;
-  ctx.beginPath(); ctx.moveTo(px,H-py); ctx.lineTo(W-px,H-py); ctx.stroke();
+  ctx.strokeStyle = '#2b383b'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(px, H - py); ctx.lineTo(W - px, H - py); ctx.stroke();
 
   training.forEach(({day, ds, idx}, k) => {
     const [done, total] = progress(ds, idx);
-    const ratio = total>0 ? done/total : 0;
-    const bH = Math.max(ratio*cH, ratio>0 ? 4*dpr : 0);
-    const x  = px + k*gap + (gap-barW)/2;
+    const ratio = total > 0 ? done / total : 0;
+    const bH = Math.max(ratio * cH, ratio > 0 ? 4 : 0);
+    const x  = px + k * gap + (gap - barW) / 2;
     const y  = H - py - bH;
-    ctx.fillStyle = done===total&&total>0 ? '#c9f66b' : '#72e4c1';
-    drawBar(ctx, x, y, barW, bH, 5*dpr);
-    ctx.fillStyle='#9ba7a6';
-    ctx.font=`${9*dpr}px -apple-system,sans-serif`; ctx.textAlign='center';
-    ctx.fillText(day.short, x+barW/2, H-4*dpr);
-    if (total>0) {
-      ctx.fillStyle = done===total ? '#c9f66b' : '#72e4c1';
-      const ty = (bH > 20*dpr) ? y-4*dpr : y-10*dpr;
-      ctx.fillText(`${done}/${total}`, x+barW/2, Math.max(ty, py+12*dpr));
+    ctx.fillStyle = done === total && total > 0 ? '#c9f66b' : '#72e4c1';
+    drawBar(ctx, x, y, barW, bH, 5);
+    ctx.fillStyle = '#9ba7a6';
+    ctx.font = '9px -apple-system,sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(day.short, x + barW / 2, H - 4);
+    if (total > 0) {
+      ctx.fillStyle = done === total ? '#c9f66b' : '#72e4c1';
+      const ty = (bH > 20) ? y - 4 : y - 8;
+      ctx.fillText(`${done}/${total}`, x + barW / 2, Math.max(ty, py + 12));
     }
   });
 }
 
 function drawDot() {  // doughnut
-  const { ctx, W, H, dpr } = sizeCanvas('cvDot');
+  const { ctx, W, H } = sizeCanvas('cvDot');
   ctx.clearRect(0, 0, W, H);
   const [done, total] = progress(selDate, selPlanIdx);
   const remain = total - done;
-  const cx = W/2.6, cy = H/2, r = Math.min(W,H)*0.32;
+  const cx = W / 2.6, cy = H / 2, r = Math.min(W, H) * 0.32;
 
   // Track
-  ctx.lineWidth=18*dpr; ctx.lineCap='round';
-  ctx.strokeStyle='#1f2e30';
-  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+  ctx.lineWidth = 16; ctx.lineCap = 'round';
+  ctx.strokeStyle = '#1f2e30';
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
 
   // Done arc
   if (done > 0) {
-    const end = -Math.PI/2 + (done/Math.max(total,1))*Math.PI*2;
-    ctx.strokeStyle = done===total ? '#c9f66b' : '#72e4c1';
-    ctx.beginPath(); ctx.arc(cx,cy,r,-Math.PI/2,end); ctx.stroke();
+    const end = -Math.PI / 2 + (done / Math.max(total, 1)) * Math.PI * 2;
+    ctx.strokeStyle = done === total ? '#c9f66b' : '#72e4c1';
+    ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, end); ctx.stroke();
   }
 
   // Center text
-  const pct = total>0 ? Math.round(done/total*100) : 0;
-  ctx.textAlign='center';
-  ctx.fillStyle='#f6f7f4';
-  ctx.font=`bold ${20*dpr}px -apple-system,sans-serif`;
-  ctx.fillText(`${pct}%`, cx, cy+5*dpr);
-  ctx.fillStyle='#9ba7a6';
-  ctx.font=`${9*dpr}px -apple-system,sans-serif`;
-  ctx.fillText('complete', cx, cy+16*dpr);
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#f6f7f4';
+  ctx.font = 'bold 20px -apple-system,sans-serif';
+  ctx.fillText(`${pct}%`, cx, cy + 5);
+  ctx.fillStyle = '#9ba7a6';
+  ctx.font = '9px -apple-system,sans-serif';
+  ctx.fillText('complete', cx, cy + 16);
 
   // Legend
-  const lx=W/1.68, ly=H/2-20*dpr;
-  ctx.textAlign='left';
-  ctx.fillStyle = done===total&&total>0 ? '#c9f66b' : '#72e4c1';
-  ctx.fillRect(lx, ly, 10*dpr, 10*dpr);
-  ctx.fillStyle='#f6f7f4'; ctx.font=`${11*dpr}px -apple-system,sans-serif`;
-  ctx.fillText(`Done (${done})`, lx+14*dpr, ly+9*dpr);
-  ctx.fillStyle='#1f2e30'; ctx.fillRect(lx, ly+22*dpr, 10*dpr, 10*dpr);
-  ctx.fillStyle='#9ba7a6'; ctx.fillText(`Left (${remain})`, lx+14*dpr, ly+31*dpr);
+  const lx = W / 1.68, ly = H / 2 - 20;
+  ctx.textAlign = 'left';
+  ctx.fillStyle = done === total && total > 0 ? '#c9f66b' : '#72e4c1';
+  ctx.fillRect(lx, ly, 10, 10);
+  ctx.fillStyle = '#f6f7f4'; ctx.font = '11px -apple-system,sans-serif';
+  ctx.fillText(`Done (${done})`, lx + 14, ly + 9);
+  ctx.fillStyle = '#1f2e30'; ctx.fillRect(lx, ly + 22, 10, 10);
+  ctx.fillStyle = '#9ba7a6'; ctx.fillText(`Left (${remain})`, lx + 14, ly + 31);
 }
 
 function drawAllCharts() {
