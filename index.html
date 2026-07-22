@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#101518">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Form">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <title>Form — Workout Tracker</title>
+  <style>
+    :root { --ink:#f6f7f4; --muted:#9ba7a6; --quiet:#5e6b6b; --bg:#101518; --panel:#182023; --panel-2:#202a2e; --line:#2b383b; --lime:#c9f66b; --mint:#72e4c1; --danger:#ff8a82; --shadow:0 16px 38px rgba(0,0,0,.26); }
+    * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { margin:0; min-height:100dvh; background:var(--bg); color:var(--ink); font:15px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+    button,input { font:inherit; } button { color:inherit; cursor:pointer; } button:focus-visible,input:focus-visible { outline:2px solid var(--mint); outline-offset:2px; }
+    .app { max-width:640px; margin:auto; min-height:100dvh; padding:18px 16px 100px; }
+    .top { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:5px 2px 22px; }
+    .eyebrow { color:var(--mint); font-size:11px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+    h1 { margin:1px 0 0; font-size:29px; letter-spacing:-.05em; line-height:1; }
+    .icon-btn { width:42px; height:42px; border:1px solid var(--line); border-radius:50%; display:grid; place-items:center; background:var(--panel); font-size:19px; }
+    .week { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-bottom:22px; }
+    .day { min-height:58px; border:1px solid transparent; background:transparent; border-radius:15px; padding:7px 2px; color:var(--muted); text-align:center; font-size:11px; font-weight:700; }
+    .day b { display:grid; place-items:center; width:28px; height:28px; border-radius:50%; margin:3px auto 0; font-size:13px; color:var(--ink); font-weight:750; }
+    .day.active { background:var(--panel-2); border-color:var(--line); color:var(--ink); }
+    .day.active b { background:var(--lime); color:#172014; } .day.done b { background:var(--mint); color:#10211c; } .day.rest { opacity:.45; }
+    .hero { border:1px solid #334344; border-radius:24px; background:linear-gradient(135deg,#233033,#182124 72%); padding:20px; box-shadow:var(--shadow); overflow:hidden; position:relative; }
+    .hero:after { content:""; position:absolute; width:148px; height:148px; background:var(--lime); filter:blur(2px); border-radius:50%; opacity:.11; right:-65px; top:-67px; }
+    .hero-row { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; position:relative; z-index:1; }
+    .hero h2 { font-size:25px; letter-spacing:-.04em; margin:2px 0 4px; line-height:1.08; } .hero p { margin:0; color:var(--muted); font-size:13px; }
+    .score { font-size:33px; line-height:.9; font-weight:800; letter-spacing:-.06em; color:var(--lime); text-align:right; } .score small { display:block; color:var(--muted); font-size:10px; letter-spacing:.08em; text-transform:uppercase; margin-top:6px; }
+    .track { height:7px; margin-top:19px; border-radius:9px; overflow:hidden; background:#0e1516; position:relative; z-index:1; } .fill { height:100%; width:0; border-radius:inherit; background:linear-gradient(90deg,var(--mint),var(--lime)); transition:width .35s ease; }
+    .quick { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin:15px 0 25px; } .quick-card { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:12px 14px; } .quick-card span { display:block; color:var(--muted); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; } .quick-card b { display:block; font-size:21px; letter-spacing:-.04em; margin-top:2px; }
+    .install-card { display:flex; align-items:center; justify-content:space-between; gap:13px; background:#182724; border:1px solid #3a5d52; border-radius:16px; padding:12px 14px; margin:-14px 0 24px; } .install-card p { margin:0; color:#c4d8d1; font-size:12px; line-height:1.35; } .install-card strong { color:var(--mint); } .install-card button { flex:0 0 auto; border:0; background:var(--mint); color:#10201b; border-radius:10px; padding:9px 11px; font-size:12px; font-weight:800; }
+    .section-head { display:flex; justify-content:space-between; align-items:baseline; margin:0 2px 11px; } .section-head h3 { margin:0; font-size:17px; letter-spacing:-.025em; } .section-head button { border:0; background:none; color:var(--mint); padding:5px; font-size:12px; font-weight:700; }
+    .exercise { background:var(--panel); border:1px solid var(--line); border-radius:18px; margin-bottom:10px; overflow:hidden; transition:border-color .2s,background .2s; } .exercise.completed { background:#1a2927; border-color:#3c5f55; }
+    .exercise-main { width:100%; border:0; background:none; display:flex; align-items:center; padding:15px 14px; gap:12px; text-align:left; }
+    .check { flex:0 0 25px; height:25px; border-radius:50%; border:1.5px solid #657473; display:grid; place-items:center; color:transparent; font-size:13px; } .completed .check { background:var(--mint); color:#11201c; border-color:var(--mint); }
+    .exercise-info { min-width:0; flex:1; } .exercise-name { font-size:15px; font-weight:750; letter-spacing:-.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .completed .exercise-name { color:#b7c9c6; text-decoration:line-through; }
+    .exercise-meta { color:var(--muted); font-size:12px; margin-top:2px; } .chevron { font-size:18px; color:var(--muted); transform:rotate(0); transition:.2s; } .exercise.open .chevron { transform:rotate(90deg); }
+    .detail { display:none; border-top:1px solid var(--line); padding:13px 14px 14px; } .open .detail { display:block; }
+    .sets-label { color:var(--muted); font-size:10px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; display:grid; grid-template-columns:28px 1fr 1fr 39px; gap:7px; padding:0 4px 7px; }
+    .set { display:grid; grid-template-columns:28px 1fr 1fr 39px; gap:7px; align-items:center; margin-bottom:7px; } .set-no { color:var(--muted); text-align:center; font-size:12px; font-weight:700; }
+    .set input { width:100%; min-width:0; height:38px; border:1px solid var(--line); background:#11191b; color:var(--ink); border-radius:9px; padding:0 8px; text-align:center; appearance:none; -webkit-appearance:none; } .set input::placeholder { color:#556162; }
+    .set-done { height:38px; border:1px solid var(--line); background:#11191b; border-radius:9px; color:var(--quiet); font-size:16px; } .set-done.on { background:rgba(114,228,193,.14); border-color:var(--mint); color:var(--mint); }
+    .add-set { width:100%; background:transparent; border:1px dashed #526363; color:var(--mint); border-radius:9px; height:37px; margin-top:3px; font-size:12px; font-weight:700; }
+    .rest-card { border:1px solid var(--line); background:var(--panel); border-radius:22px; padding:35px 23px; text-align:center; } .rest-card .moon { font-size:38px; } .rest-card h2 { margin:8px 0 5px; font-size:23px; letter-spacing:-.04em; } .rest-card p { color:var(--muted); margin:0 auto; max-width:260px; font-size:13px; }
+    .reset { width:100%; margin-top:12px; padding:11px; border:0; background:transparent; color:#869292; font-size:12px; }
+    .sheet { position:fixed; inset:0; z-index:5; display:none; align-items:flex-end; background:rgba(0,0,0,.54); backdrop-filter:blur(3px); } .sheet.show { display:flex; } .sheet-inner { width:min(640px,100%); margin:auto; background:#20292d; border:1px solid #3b4a4c; border-radius:24px 24px 0 0; padding:12px 16px calc(22px + env(safe-area-inset-bottom)); } .handle { width:38px; height:4px; background:#6b7776; border-radius:4px; margin:0 auto 19px; } .sheet h2 { margin:0 0 14px; font-size:20px; letter-spacing:-.04em; } .field { margin-bottom:12px; } .field label { display:block; color:var(--muted); font-size:11px; font-weight:700; margin:0 0 5px 3px; } .field input { width:100%; height:44px; background:#11191b; border:1px solid var(--line); color:var(--ink); border-radius:11px; padding:0 12px; } .save { width:100%; height:48px; border:0; background:var(--lime); color:#172014; border-radius:13px; font-weight:800; margin-top:3px; }
+    .toast { position:fixed; bottom:calc(22px + env(safe-area-inset-bottom)); left:50%; transform:translate(-50%,16px); opacity:0; pointer-events:none; transition:.24s; background:#e8f4ef; color:#13201c; padding:10px 14px; border-radius:99px; font-size:13px; font-weight:750; box-shadow:var(--shadow); white-space:nowrap; } .toast.show { transform:translate(-50%,0); opacity:1; }
+    @media (min-width:641px) { body { background:#0b0f11; } .app { border-left:1px solid #263235; border-right:1px solid #263235; } }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="top"><div><div class="eyebrow" id="dateLabel"></div><h1>Form</h1></div><button class="icon-btn" id="editPlan" aria-label="Edit current workout">⋯</button></header>
+    <nav class="week" id="week" aria-label="Days of the week"></nav>
+    <section class="hero" id="hero"></section>
+    <section class="quick"><div class="quick-card"><span>Weekly progress</span><b id="weeklyStat">0 / 0</b></div><div class="quick-card"><span>Completed today</span><b id="todayStat">0 / 0</b></div></section>
+    <aside class="install-card" id="installCard" hidden><p id="installCopy"><strong>Install Form</strong><br>Keep your tracker one tap away.</p><button id="installButton">Install</button></aside>
+    <section id="workout"></section>
+  </main>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"><div class="sheet-inner"><div class="handle"></div><h2 id="sheetTitle">Add an exercise</h2><div class="field"><label for="exerciseName">Exercise name</label><input id="exerciseName" autocomplete="off" placeholder="e.g. Cable row"></div><div class="field"><label for="exerciseSets">Number of sets</label><input id="exerciseSets" type="number" min="1" max="12" value="3" inputmode="numeric"></div><button class="save" id="saveExercise">Add to today</button><button class="reset" id="closeSheet">Cancel</button></div></div>
+  <div class="toast" id="toast"></div>
+  <script>
+    const plan = [
+      {id:'mon', short:'M', day:'Mon', title:'Lower strength', focus:'Quads, glutes & core', exercises:[['Back squat','4 × 5','RPE 8'],['Romanian deadlift','3 × 8','RPE 7'],['Bulgarian split squat','3 × 10','each side'],['Leg extension','3 × 12','slow tempo']]},
+      {id:'tue', short:'T', day:'Tue', title:'Upper pull', focus:'Back, rear delts & biceps', exercises:[['Pull ups','4 × 6','assisted if needed'],['Chest-supported row','3 × 10','RPE 8'],['Cable pulldown','3 × 12','controlled'],['Hammer curl','3 × 12','']]},
+      {id:'wed', short:'W', day:'Wed', title:'Upper push', focus:'Chest, shoulders & triceps', exercises:[['Incline dumbbell press','4 × 8','RPE 8'],['Shoulder press','3 × 10','seated'],['Cable fly','3 × 12','slow squeeze'],['Rope pushdown','3 × 12','']]},
+      {id:'thu', short:'T', day:'Thu', title:'Rest & recover', focus:'Walk, stretch or do nothing', rest:true, exercises:[]},
+      {id:'fri', short:'F', day:'Fri', title:'Lower hypertrophy', focus:'Hamstrings, glutes & calves', exercises:[['Leg press','4 × 12','full range'],['Lying leg curl','3 × 12',''],['Walking lunge','3 × 12','each side'],['Standing calf raise','4 × 15','pause at top']]},
+      {id:'sat', short:'S', day:'Sat', title:'Full body', focus:'Optional pump session', exercises:[['Lat pulldown','3 × 12',''],['Machine chest press','3 × 12',''],['Lateral raise','3 × 15',''],['Cable curl','3 × 12','']]},
+      {id:'sun', short:'S', day:'Sun', title:'Reset', focus:'Rest, prep & recharge', rest:true, exercises:[]}
+    ];
+    const storageKey='form-workout-v2';
+    let state = JSON.parse(localStorage.getItem(storageKey) || '{}');
+    let customExercises = JSON.parse(localStorage.getItem('form-custom-exercises') || '{}');
+    let selected = plan[(new Date().getDay()+6)%7].id;
+    const $ = s => document.querySelector(s);
+    const save = () => { localStorage.setItem(storageKey,JSON.stringify(state)); localStorage.setItem('form-custom-exercises',JSON.stringify(customExercises)); };
+    const ensure = id => state[id] ||= {completed:false, open:false, sets:[]};
+    const current = () => plan.find(d=>d.id===selected);
+    const exercisesFor = day => [...day.exercises,...(customExercises[day.id] || [])];
+    const allExercises = () => plan.flatMap(d=>exercisesFor(d).map((_,i)=>`${d.id}-${i}`));
+    const progress = day => { if(day.rest) return [0,0]; const ids=exercisesFor(day).map((_,i)=>`${day.id}-${i}`); return [ids.filter(id=>state[id]?.completed).length,ids.length]; };
+    function localDate(){ $('#dateLabel').textContent=new Intl.DateTimeFormat('en-US',{weekday:'long',month:'short',day:'numeric'}).format(new Date()); }
+    function renderWeek(){ const el=$('#week'); el.innerHTML=''; plan.forEach(day=>{const [done,total]=progress(day); const b=document.createElement('button'); b.className=`day ${day.id===selected?'active':''} ${day.rest?'rest':''} ${total&&done===total?'done':''}`; b.innerHTML=`${day.day}<b>${day.short}</b>`; b.onclick=()=>{selected=day.id;render()}; el.append(b); }); }
+    function renderHero(){ const day=current(), [done,total]=progress(day), pct=total?Math.round(done/total*100):0; $('#hero').innerHTML=day.rest?`<div class="hero-row"><div><div class="eyebrow">Recovery day</div><h2>${day.title}</h2><p>${day.focus}</p></div><div class="score">☾<small>go easy</small></div></div>`:`<div class="hero-row"><div><div class="eyebrow">Today's session</div><h2>${day.title}</h2><p>${day.focus}</p></div><div class="score">${pct}%<small>${done} of ${total} done</small></div></div><div class="track"><div class="fill" style="width:${pct}%"></div></div>`; }
+    function renderStats(){ const ids=allExercises(), done=ids.filter(id=>state[id]?.completed).length, [todayDone,todayTotal]=progress(current()); $('#weeklyStat').textContent=`${done} / ${ids.length}`; $('#todayStat').textContent=`${todayDone} / ${todayTotal}`; }
+    function setRows(id, ex){ const s=ensure(id); const count=Math.max(2, Number((ex[1]||'3').match(/^\d+/)?.[0]||3),s.sets.length); while(s.sets.length<count)s.sets.push({weight:'',reps:'',done:false}); return `<div class="sets-label"><span>Set</span><span>kg</span><span>reps</span><span></span></div>${s.sets.map((set,i)=>`<div class="set"><div class="set-no">${i+1}</div><input aria-label="Set ${i+1} weight" inputmode="decimal" type="number" placeholder="—" value="${set.weight}" data-input="weight" data-id="${id}" data-set="${i}"><input aria-label="Set ${i+1} reps" inputmode="numeric" type="number" placeholder="—" value="${set.reps}" data-input="reps" data-id="${id}" data-set="${i}"><button class="set-done ${set.done?'on':''}" data-setdone="${id}" data-index="${i}" aria-label="Mark set ${i+1} complete">✓</button></div>`).join('')}<button class="add-set" data-addset="${id}">+ Add set</button>`; }
+    function renderWorkout(){ const el=$('#workout'), day=current(); if(day.rest){el.innerHTML=`<div class="rest-card"><div class="moon">☾</div><h2>Recovery counts.</h2><p>No training scheduled. Let your body adapt — an easy walk or a little mobility is plenty.</p></div>`; return;} const [done,total]=progress(day), exercises=exercisesFor(day); el.innerHTML=`<div class="section-head"><h3>Exercises</h3><button id="addExercise">+ Add exercise</button></div>${exercises.map((ex,i)=>{let id=`${day.id}-${i}`,s=ensure(id);return `<article class="exercise ${s.completed?'completed':''} ${s.open?'open':''}" data-card="${id}"><button class="exercise-main" data-toggle="${id}" aria-expanded="${s.open}"><span class="check" data-complete="${id}" role="button" tabindex="0" aria-label="Mark ${ex[0]} complete">✓</span><span class="exercise-info"><span class="exercise-name">${ex[0]}</span><span class="exercise-meta">${ex[1]} · ${ex[2]||'log your work'}</span></span><span class="chevron">›</span></button><div class="detail">${setRows(id,ex)}</div></article>`}).join('')}<button class="reset" id="resetDay">Reset ${day.day}'s log</button>`; bindWorkout(); }
+    function bindWorkout(){ document.querySelectorAll('[data-toggle]').forEach(b=>b.onclick=()=>{const s=ensure(b.dataset.toggle); s.open=!s.open;save();renderWorkout()}); document.querySelectorAll('[data-complete]').forEach(b=>{const toggle=e=>{e.preventDefault();e.stopPropagation();const s=ensure(b.dataset.complete);s.completed=!s.completed;save();render();toast(s.completed?'Exercise complete':'Exercise reopened')};b.onclick=toggle;b.onpointerdown=e=>e.stopPropagation();b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){toggle(e)}}}); document.querySelectorAll('[data-setdone]').forEach(b=>b.onclick=()=>{const s=ensure(b.dataset.setdone);s.sets[+b.dataset.index].done=!s.sets[+b.dataset.index].done;save();renderWorkout()}); document.querySelectorAll('[data-addset]').forEach(b=>b.onclick=()=>{ensure(b.dataset.addset).sets.push({weight:'',reps:'',done:false});save();renderWorkout()}); document.querySelectorAll('[data-input]').forEach(i=>i.oninput=()=>{ensure(i.dataset.id).sets[+i.dataset.set][i.dataset.input]=i.value;save()}); $('#addExercise').onclick=()=>$('#sheet').classList.add('show'); $('#resetDay').onclick=()=>{if(confirm(`Reset ${current().day}'s workout log?`)){Object.keys(state).filter(key=>key.startsWith(`${selected}-`)).forEach(key=>delete state[key]);save();render();}}; }
+    function render(){localDate();renderWeek();renderHero();renderStats();renderWorkout();}
+    function toast(text){const t=$('#toast');t.textContent=text;t.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove('show'),1800)}
+    $('#editPlan').onclick=()=>$('#sheet').classList.add('show'); $('#closeSheet').onclick=()=>$('#sheet').classList.remove('show'); $('#sheet').onclick=e=>{if(e.target===$('#sheet'))$('#sheet').classList.remove('show')}; $('#saveExercise').onclick=()=>{const name=$('#exerciseName').value.trim(), sets=Math.min(12,Math.max(1,+$('#exerciseSets').value||3));if(!name){$('#exerciseName').focus();return;}if(current().rest){toast('Choose a training day first');return;}(customExercises[selected] ||= []).push([name,`${sets} sets`,'']);save();$('#exerciseName').value='';$('#sheet').classList.remove('show');render();toast('Exercise added');};
+    let installPrompt;
+    const installCard=$('#installCard'), installButton=$('#installButton'), isIos=/iphone|ipad|ipod/i.test(navigator.userAgent), isStandalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+    if(!isStandalone&&isIos){installCard.hidden=false;$('#installCopy').innerHTML='<strong>Install Form</strong><br>Tap Share, then “Add to Home Screen.”';installButton.textContent='Got it';installButton.onclick=()=>installCard.hidden=true;}
+    window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;installCard.hidden=false;installButton.textContent='Install';installButton.onclick=async()=>{installPrompt.prompt();const choice=await installPrompt.userChoice;if(choice.outcome==='accepted')installCard.hidden=true;installPrompt=null;};});
+    window.addEventListener('appinstalled',()=>{installCard.hidden=true;toast('Form installed');});
+    if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+    render();
+  </script>
+</body>
+</html>
