@@ -26,12 +26,13 @@
       --danger: #ff8a82;
       --shadow: 0 16px 38px rgba(0,0,0,.26);
     }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--ink); font: 15px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+    *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; padding: 0; width: 100%; max-width: 100%; overflow-x: hidden; }
+    body { min-height: 100dvh; background: var(--bg); color: var(--ink); font: 15px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
     button, input { font: inherit; } button { color: inherit; cursor: pointer; }
     button:focus-visible, input:focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
 
-    .app { max-width: 640px; margin: auto; min-height: 100dvh; padding: 18px 16px 100px; }
+    .app { max-width: 640px; width: 100%; margin: auto; min-height: 100dvh; padding: 18px 16px 100px; overflow-x: hidden; }
     .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 5px 2px 18px; }
     .eyebrow { color: var(--mint); font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
     h1 { margin: 1px 0 0; font-size: 29px; letter-spacing: -.05em; line-height: 1; }
@@ -41,15 +42,15 @@
     .tab-btn { border: 0; background: transparent; color: var(--muted); padding: 8px 4px; border-radius: 12px; font-size: 12px; font-weight: 750; text-align: center; transition: .2s; }
     .tab-btn.active { background: var(--panel-2); color: var(--lime); border: 1px solid var(--line); }
 
-    .week { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; margin-bottom: 20px; }
-    .day { min-height: 58px; border: 1px solid transparent; background: transparent; border-radius: 15px; padding: 7px 2px; color: var(--muted); text-align: center; font-size: 11px; font-weight: 700; line-height: 1.2; }
+    .week { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; margin-bottom: 20px; width: 100%; }
+    .day { min-height: 58px; border: 1px solid transparent; background: transparent; border-radius: 15px; padding: 7px 2px; color: var(--muted); text-align: center; font-size: 11px; font-weight: 700; line-height: 1.2; width: 100%; }
     .day b { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; margin: 4px auto 0; font-size: 13px; color: var(--ink); font-weight: 750; }
     .day.active { background: var(--panel-2); border-color: var(--line); color: var(--ink); }
     .day.active b { background: var(--lime); color: #172014; }
     .day.done b { background: var(--mint); color: #10211c; }
     .day.rest { opacity: .45; }
 
-    .hero { border: 1px solid #334344; border-radius: 24px; background: linear-gradient(135deg,#233033,#182124 72%); padding: 20px; box-shadow: var(--shadow); overflow: hidden; position: relative; margin-bottom: 15px; }
+    .hero { border: 1px solid #334344; border-radius: 24px; background: linear-gradient(135deg,#233033,#182124 72%); padding: 20px; box-shadow: var(--shadow); overflow: hidden; position: relative; margin-bottom: 15px; max-width: 100%; }
     .hero:after { content: ""; position: absolute; width: 148px; height: 148px; background: var(--lime); filter: blur(2px); border-radius: 50%; opacity: .11; right: -65px; top: -67px; }
     .hero-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; position: relative; z-index: 1; }
     .hero h2 { font-size: 25px; letter-spacing: -.04em; margin: 2px 0 4px; line-height: 1.08; }
@@ -59,8 +60,8 @@
     .track { height: 7px; margin-top: 19px; border-radius: 9px; overflow: hidden; background: #0e1516; position: relative; z-index: 1; }
     .fill { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg,var(--mint),var(--lime)); transition: width .35s ease; }
 
-    .quick { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 22px; }
-    .quick-card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; }
+    .quick { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 22px; width: 100%; }
+    .quick-card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; min-width: 0; }
     .quick-card span { display: block; color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
     .quick-card b { display: block; font-size: 21px; letter-spacing: -.04em; margin-top: 2px; color: var(--lime); }
 
@@ -68,7 +69,7 @@
     .section-head h3 { margin: 0; font-size: 17px; letter-spacing: -.025em; }
     .section-head button { border: 0; background: none; color: var(--mint); padding: 5px; font-size: 12px; font-weight: 700; }
 
-    .exercise { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; margin-bottom: 10px; overflow: hidden; transition: border-color .2s, background .2s; }
+    .exercise { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; margin-bottom: 10px; overflow: hidden; transition: border-color .2s, background .2s; width: 100%; }
     .exercise.completed { background: #1a2927; border-color: #3c5f55; }
     .exercise-main { width: 100%; border: 0; background: none; display: flex; align-items: center; padding: 15px 14px; gap: 12px; text-align: left; }
     .check { flex: 0 0 25px; height: 25px; border-radius: 50%; border: 1.5px solid #657473; display: grid; place-items: center; color: transparent; font-size: 13px; }
@@ -105,9 +106,9 @@
     .field input { width: 100%; height: 44px; background: #11191b; border: 1px solid var(--line); color: var(--ink); border-radius: 11px; padding: 0 12px; }
     .save-btn { width: 100%; height: 48px; border: 0; background: var(--lime); color: #172014; border-radius: 13px; font-weight: 800; margin-top: 3px; }
 
-    .chart-card { background: var(--panel); border: 1px solid var(--line); border-radius: 20px; padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow); }
+    .chart-card { background: var(--panel); border: 1px solid var(--line); border-radius: 20px; padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow); overflow: hidden; max-width: 100%; min-width: 0; }
     .chart-card h4 { margin: 0 0 12px; font-size: 13px; font-weight: 750; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
-    .chart-wrap { width: 100%; height: 180px; position: relative; }
+    .chart-wrap { width: 100%; height: 180px; position: relative; overflow: hidden; max-width: 100%; min-width: 0; }
     .chart-wrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
     .tool-btn { border: 1px solid var(--line); background: var(--panel-2); color: var(--ink); border-radius: 10px; padding: 8px 14px; font-size: 12px; font-weight: 750; margin-right: 6px; margin-bottom: 8px; }
@@ -241,20 +242,17 @@ const PLAN = [
 // DATE UTILS — always LOCAL date, never UTC
 // ═══════════════════════════════════════════════════════
 function localISO(d) {
-  // Returns YYYY-MM-DD using LOCAL date (avoids UTC midnight shift)
   const Y = d.getFullYear();
   const M = String(d.getMonth() + 1).padStart(2, '0');
   const D = String(d.getDate()).padStart(2, '0');
   return `${Y}-${M}-${D}`;
 }
 function parseLocal(str) {
-  // Parse YYYY-MM-DD as a LOCAL date (not UTC)
   const [y, m, d] = str.split('-').map(Number);
   return new Date(y, m - 1, d);
 }
 function localDOW(d) {
-  // Day of week: 0=Mon … 6=Sun (ISO weekday)
-  return (d.getDay() + 6) % 7;
+  return (d.getDay() + 6) % 7; // 0=Mon … 6=Sun
 }
 
 // ═══════════════════════════════════════════════════════
@@ -278,13 +276,12 @@ function getEntry(dateStr, idx) {
 // ═══════════════════════════════════════════════════════
 const TODAY      = new Date();
 const TODAY_ISO  = localISO(TODAY);
-const TODAY_DOW  = localDOW(TODAY);   // 0=Mon…6=Sun
+const TODAY_DOW  = localDOW(TODAY);
 
 let selDate    = TODAY_ISO;
-let selPlanIdx = TODAY_DOW;           // index into PLAN
+let selPlanIdx = TODAY_DOW;
 
-// The 7 dates (Mon–Sun) for the week containing selDate
-let weekDates = [];  // array of YYYY-MM-DD strings
+let weekDates = [];
 
 function buildWeek() {
   const d    = parseLocal(selDate);
@@ -328,7 +325,6 @@ function renderWeek() {
       day.rest ? 'rest' : '',
       isDone && !isSel ? 'done' : ''
     ].join(' ').trim();
-    // date.getDate() = day number (e.g. 23)
     const dateNum = parseLocal(ds).getDate();
     btn.innerHTML = `${day.short}<b>${dateNum}</b>`;
     btn.onclick = () => { selDate = ds; selPlanIdx = i; render(); };
@@ -414,7 +410,6 @@ function renderWorkout() {
     }).join('') +
     `<button class="reset-btn" id="btnResetDay">Reset this day's log</button>`;
 
-  // Bind toggle (open/close)
   el.querySelectorAll('[data-tog]').forEach(btn => {
     btn.onclick = e => {
       if (e.target.closest('[data-chk]')) return;
@@ -425,7 +420,6 @@ function renderWorkout() {
     };
   });
 
-  // Bind complete checkboxes
   el.querySelectorAll('[data-chk]').forEach(span => {
     const go = e => {
       e.preventDefault(); e.stopPropagation();
@@ -439,7 +433,6 @@ function renderWorkout() {
     span.onkeydown = e => { if (e.key==='Enter'||e.key===' ') go(e); };
   });
 
-  // Bind set done buttons
   el.querySelectorAll('[data-sd]').forEach(btn => {
     btn.onclick = () => {
       const e = getEntry(btn.dataset.d, +btn.dataset.e);
@@ -448,7 +441,6 @@ function renderWorkout() {
     };
   });
 
-  // Bind add-set buttons
   el.querySelectorAll('[data-as]').forEach(btn => {
     btn.onclick = () => {
       getEntry(btn.dataset.d, +btn.dataset.e).sets.push({weight:'',reps:'',done:false});
@@ -456,7 +448,6 @@ function renderWorkout() {
     };
   });
 
-  // Bind weight/rep inputs
   el.querySelectorAll('[data-f]').forEach(inp => {
     inp.oninput = () => {
       getEntry(inp.dataset.d, +inp.dataset.e).sets[+inp.dataset.s][inp.dataset.f] = inp.value;
@@ -464,11 +455,9 @@ function renderWorkout() {
     };
   });
 
-  // Add exercise button
   const aBtn = document.getElementById('btnAddInline');
   if (aBtn) aBtn.onclick = openSheet;
 
-  // Reset day button
   const rBtn = document.getElementById('btnResetDay');
   if (rBtn) rBtn.onclick = () => {
     if (!confirm(`Reset ${planDay(selPlanIdx).label}'s log?`)) return;
@@ -482,7 +471,6 @@ function renderWorkout() {
 // MAIN RENDER
 // ═══════════════════════════════════════════════════════
 function render() {
-  // Date label uses the SELECTED date displayed
   const d = parseLocal(selDate);
   document.getElementById('dateLabel').textContent =
     new Intl.DateTimeFormat('en-US', {weekday:'long', month:'short', day:'numeric'}).format(d);
@@ -551,14 +539,9 @@ document.getElementById('btnExport').onclick = () => {
 document.getElementById('btnImport').onclick = () => document.getElementById('fileInput').click();
 document.getElementById('fileInput').onchange = e => {
   const f = e.target.files[0]; if (!f) return;
-  new FileReader().onload = ev => {
-    try {
-      const imp = JSON.parse(ev.target.result);
-      if (imp.logs) { logs = imp.logs; custom = imp.custom||{}; saveLogs(); saveCustom(); render(); showToast('Restored!'); }
-    } catch { alert('Invalid file.'); }
-  };
-  const r = new FileReader(); r.onload = ev => {
-    try { const d=JSON.parse(ev.target.result); if(d.logs){logs=d.logs;custom=d.custom||{};saveLogs();saveCustom();render();showToast('Restored!');} } catch{alert('Invalid file.');}
+  const r = new FileReader();
+  r.onload = ev => {
+    try { const d = JSON.parse(ev.target.result); if (d.logs) { logs = d.logs; custom = d.custom||{}; saveLogs(); saveCustom(); render(); showToast('Restored!'); } } catch { alert('Invalid file.'); }
   };
   r.readAsText(f); e.target.value = '';
 };
@@ -568,18 +551,20 @@ document.getElementById('btnReset').onclick = () => {
 };
 
 // ═══════════════════════════════════════════════════════
-// CANVAS CHARTS — iOS-safe, no roundRect, no CDN
-// Uses offsetWidth/offsetHeight (not getBoundingClientRect)
+// CANVAS CHARTS — Responsive & iOS-safe Retina rendering
 // ═══════════════════════════════════════════════════════
 function sizeCanvas(id) {
   const canvas = document.getElementById(id);
+  if (!canvas) return { ctx: null, W: 300, H: 180 };
   const wrap   = canvas.parentElement;
-  const dpr    = window.devicePixelRatio || 1;
-  const cssW   = wrap.offsetWidth  || 300;
-  const cssH   = wrap.offsetHeight || 180;
+  const dpr    = Math.min(window.devicePixelRatio || 1, 3);
+  const cssW   = wrap.clientWidth || 300;
+  const cssH   = wrap.clientHeight || 180;
 
-  canvas.width  = Math.floor(cssW * dpr);
-  canvas.height = Math.floor(cssH * dpr);
+  if (canvas.width !== Math.floor(cssW * dpr) || canvas.height !== Math.floor(cssH * dpr)) {
+    canvas.width  = Math.floor(cssW * dpr);
+    canvas.height = Math.floor(cssH * dpr);
+  }
 
   const ctx = canvas.getContext('2d');
   if (ctx.resetTransform) {
@@ -592,7 +577,6 @@ function sizeCanvas(id) {
   return { ctx, W: cssW, H: cssH };
 }
 
-// Rounded-top bar (no ctx.roundRect needed)
 function drawBar(ctx, x, y, w, h, r) {
   if (h <= 0) return;
   r = Math.min(r, w / 2, h / 2);
@@ -610,10 +594,10 @@ function drawBar(ctx, x, y, w, h, r) {
 
 function drawLine() {
   const { ctx, W, H } = sizeCanvas('cvLine');
+  if (!ctx) return;
   ctx.clearRect(0, 0, W, H);
-  const px = 28, py = 18, cH = H - py * 2, cW = W - px * 2;
+  const px = Math.max(20, W * 0.08), py = 20, cH = H - py * 2, cW = W - px * 2;
 
-  // last 7 local days
   const pts = Array.from({length:7}, (_, k) => {
     const d   = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate() - (6 - k));
     const ds  = localISO(d);
@@ -623,11 +607,9 @@ function drawLine() {
     return { x: px + k * (cW / 6), y: H - py - val * (cH - 10), val, lbl: PLAN[dow].short };
   });
 
-  // Baseline
   ctx.strokeStyle = '#2b383b'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(px, H - py); ctx.lineTo(W - px, H - py); ctx.stroke();
 
-  // Gradient fill
   const g = ctx.createLinearGradient(0, 0, 0, H);
   g.addColorStop(0, 'rgba(114,228,193,0.28)'); g.addColorStop(1, 'rgba(114,228,193,0)');
   ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
@@ -635,12 +617,10 @@ function drawLine() {
   ctx.lineTo(pts[6].x, H - py); ctx.lineTo(pts[0].x, H - py); ctx.closePath();
   ctx.fillStyle = g; ctx.fill();
 
-  // Line
   ctx.strokeStyle = '#72e4c1'; ctx.lineWidth = 3; ctx.lineJoin = 'round';
   ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
   pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke();
 
-  // Dots + labels
   ctx.font = 'bold 10px -apple-system,sans-serif'; ctx.textAlign = 'center';
   pts.forEach(p => {
     ctx.beginPath(); ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
@@ -648,18 +628,18 @@ function drawLine() {
     ctx.fillStyle = '#9ba7a6'; ctx.fillText(p.lbl, p.x, H - 4);
   });
 
-  // Stats cards
   const active = pts.filter(p => p.val > 0).length;
   document.getElementById('cStreak').textContent = active;
   document.getElementById('cRate').textContent   = `${Math.round(active / 7 * 100)}%`;
 }
 
-function drawBar_() {  // bar chart
+function drawBar_() {
   const { ctx, W, H } = sizeCanvas('cvBar');
+  if (!ctx) return;
   ctx.clearRect(0, 0, W, H);
-  const px = 18, py = 20, cH = H - py * 2, cW = W - px * 2;
+  const px = Math.max(16, W * 0.06), py = 20, cH = H - py * 2, cW = W - px * 2;
   const training = PLAN.map((d, i) => ({day: d, ds: weekDates[i], idx: i})).filter(x => !x.day.rest);
-  const n = training.length, gap = cW / n, barW = Math.min(28, gap * 0.52);
+  const n = training.length, gap = cW / n, barW = Math.min(26, gap * 0.52);
 
   ctx.strokeStyle = '#2b383b'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(px, H - py); ctx.lineTo(W - px, H - py); ctx.stroke();
@@ -683,44 +663,85 @@ function drawBar_() {  // bar chart
   });
 }
 
-function drawDot() {  // doughnut
+function drawDot() {
   const { ctx, W, H } = sizeCanvas('cvDot');
+  if (!ctx) return;
   ctx.clearRect(0, 0, W, H);
   const [done, total] = progress(selDate, selPlanIdx);
-  const remain = total - done;
-  const cx = W / 2.6, cy = H / 2, r = Math.min(W, H) * 0.32;
+  const remain = Math.max(0, total - done);
+
+  const isSmall = W < 480;
+
+  let cx, cy, r, lx, ly, isStacked = false;
+  if (isSmall) {
+    cx = W / 2;
+    cy = 68;
+    r = Math.min(W * 0.24, 44);
+    isStacked = true;
+  } else {
+    cx = W / 3;
+    cy = H / 2;
+    r = Math.min(W * 0.28, H * 0.35, 52);
+    lx = W / 1.65;
+    ly = H / 2 - 18;
+  }
 
   // Track
-  ctx.lineWidth = 16; ctx.lineCap = 'round';
+  ctx.lineWidth = isSmall ? 13 : 16;
+  ctx.lineCap = 'round';
   ctx.strokeStyle = '#1f2e30';
-  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.stroke();
 
   // Done arc
   if (done > 0) {
     const end = -Math.PI / 2 + (done / Math.max(total, 1)) * Math.PI * 2;
     ctx.strokeStyle = done === total ? '#c9f66b' : '#72e4c1';
-    ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, end); ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, -Math.PI / 2, end);
+    ctx.stroke();
   }
 
   // Center text
-  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
   ctx.textAlign = 'center';
   ctx.fillStyle = '#f6f7f4';
-  ctx.font = 'bold 20px -apple-system,sans-serif';
-  ctx.fillText(`${pct}%`, cx, cy + 5);
+  ctx.font = `bold ${isSmall ? 16 : 19}px -apple-system, sans-serif`;
+  ctx.fillText(`${pct}%`, cx, cy + (isSmall ? 4 : 5));
   ctx.fillStyle = '#9ba7a6';
-  ctx.font = '9px -apple-system,sans-serif';
-  ctx.fillText('complete', cx, cy + 16);
+  ctx.font = `${isSmall ? 9 : 10}px -apple-system, sans-serif`;
+  ctx.fillText('complete', cx, cy + (isSmall ? 15 : 17));
 
   // Legend
-  const lx = W / 1.68, ly = H / 2 - 20;
   ctx.textAlign = 'left';
-  ctx.fillStyle = done === total && total > 0 ? '#c9f66b' : '#72e4c1';
-  ctx.fillRect(lx, ly, 10, 10);
-  ctx.fillStyle = '#f6f7f4'; ctx.font = '11px -apple-system,sans-serif';
-  ctx.fillText(`Done (${done})`, lx + 14, ly + 9);
-  ctx.fillStyle = '#1f2e30'; ctx.fillRect(lx, ly + 22, 10, 10);
-  ctx.fillStyle = '#9ba7a6'; ctx.fillText(`Left (${remain})`, lx + 14, ly + 31);
+  ctx.font = '11px -apple-system, sans-serif';
+
+  if (isStacked) {
+    const legY = 145;
+    const item1X = W / 2 - 75;
+    const item2X = W / 2 + 10;
+
+    ctx.fillStyle = done === total && total > 0 ? '#c9f66b' : '#72e4c1';
+    ctx.fillRect(item1X, legY, 10, 10);
+    ctx.fillStyle = '#f6f7f4';
+    ctx.fillText(`Done (${done})`, item1X + 14, legY + 9);
+
+    ctx.fillStyle = '#1f2e30';
+    ctx.fillRect(item2X, legY, 10, 10);
+    ctx.fillStyle = '#9ba7a6';
+    ctx.fillText(`Left (${remain})`, item2X + 14, legY + 9);
+  } else {
+    ctx.fillStyle = done === total && total > 0 ? '#c9f66b' : '#72e4c1';
+    ctx.fillRect(lx, ly, 10, 10);
+    ctx.fillStyle = '#f6f7f4';
+    ctx.fillText(`Done (${done})`, lx + 14, ly + 9);
+
+    ctx.fillStyle = '#1f2e30';
+    ctx.fillRect(lx, ly + 22, 10, 10);
+    ctx.fillStyle = '#9ba7a6';
+    ctx.fillText(`Left (${remain})`, lx + 14, ly + 31);
+  }
 }
 
 function drawAllCharts() {
@@ -729,14 +750,28 @@ function drawAllCharts() {
   try { drawDot(); }  catch(e) { console.warn('dot chart',  e); }
 }
 
-// Double rAF guarantees layout is computed before reading offsetWidth
 function scheduleCharts() {
   requestAnimationFrame(() => requestAnimationFrame(drawAllCharts));
 }
 
-window.addEventListener('resize', () => {
-  if (document.getElementById('view-charts').classList.contains('active')) scheduleCharts();
-});
+let resizeDebounceTimer = null;
+function handleResize() {
+  if (resizeDebounceTimer) clearTimeout(resizeDebounceTimer);
+  resizeDebounceTimer = setTimeout(() => {
+    if (document.getElementById('view-charts')?.classList.contains('active')) {
+      scheduleCharts();
+    }
+  }, 100);
+}
+
+window.addEventListener('resize', handleResize, { passive: true });
+window.addEventListener('orientationchange', handleResize, { passive: true });
+window.addEventListener('pageshow', handleResize, { passive: true });
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && document.getElementById('view-charts')?.classList.contains('active')) {
+    scheduleCharts();
+  }
+}, { passive: true });
 
 // ═══════════════════════════════════════════════════════
 // SERVICE WORKER

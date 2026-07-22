@@ -1,4 +1,4 @@
-const CACHE = 'workout-tracker-pwa-v5';
+const CACHE = 'workout-tracker-pwa-v6';
 const APP_SHELL = [
   './',
   './index.html',
