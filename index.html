@@ -11,6 +11,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <title>Form — Workout Tracker</title>
   <style>
     :root { --ink:#f6f7f4; --muted:#9ba7a6; --quiet:#5e6b6b; --bg:#101518; --panel:#182023; --panel-2:#202a2e; --line:#2b383b; --lime:#c9f66b; --mint:#72e4c1; --danger:#ff8a82; --shadow:0 16px 38px rgba(0,0,0,.26); }
@@ -51,6 +52,36 @@
     .reset { width:100%; margin-top:12px; padding:11px; border:0; background:transparent; color:#869292; font-size:12px; }
     .sheet { position:fixed; inset:0; z-index:5; display:none; align-items:flex-end; background:rgba(0,0,0,.54); backdrop-filter:blur(3px); } .sheet.show { display:flex; } .sheet-inner { width:min(640px,100%); margin:auto; background:#20292d; border:1px solid #3b4a4c; border-radius:24px 24px 0 0; padding:12px 16px calc(22px + env(safe-area-inset-bottom)); } .handle { width:38px; height:4px; background:#6b7776; border-radius:4px; margin:0 auto 19px; } .sheet h2 { margin:0 0 14px; font-size:20px; letter-spacing:-.04em; } .field { margin-bottom:12px; } .field label { display:block; color:var(--muted); font-size:11px; font-weight:700; margin:0 0 5px 3px; } .field input { width:100%; height:44px; background:#11191b; border:1px solid var(--line); color:var(--ink); border-radius:11px; padding:0 12px; } .save { width:100%; height:48px; border:0; background:var(--lime); color:#172014; border-radius:13px; font-weight:800; margin-top:3px; }
     .toast { position:fixed; bottom:calc(22px + env(safe-area-inset-bottom)); left:50%; transform:translate(-50%,16px); opacity:0; pointer-events:none; transition:.24s; background:#e8f4ef; color:#13201c; padding:10px 14px; border-radius:99px; font-size:13px; font-weight:750; box-shadow:var(--shadow); white-space:nowrap; } .toast.show { transform:translate(-50%,0); opacity:1; }
+    
+    /* Progress Analytics Section */
+    .analytics-card { background:var(--panel); border:1px solid var(--line); border-radius:24px; padding:20px; margin-top:24px; box-shadow:var(--shadow); }
+    .analytics-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px; }
+    .analytics-header h2 { margin:0; font-size:20px; letter-spacing:-.03em; }
+    .analytics-tools { display:flex; gap:6px; flex-wrap:wrap; }
+    .tool-btn { border:1px solid var(--line); background:var(--panel-2); color:var(--muted); border-radius:10px; padding:6px 11px; font-size:11px; font-weight:700; transition:.2s; }
+    .tool-btn:hover { border-color:var(--mint); color:var(--mint); }
+    .tool-btn.danger { border-color:rgba(255,138,130,.3); color:var(--danger); }
+    .tool-btn.danger:hover { background:rgba(255,138,130,.15); }
+    .analytics-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:18px; }
+    .metric-box { background:#11191b; border:1px solid var(--line); border-radius:14px; padding:10px; text-align:center; }
+    .metric-box span { display:block; color:var(--muted); font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; }
+    .metric-box b { display:block; font-size:17px; letter-spacing:-.04em; margin-top:3px; color:var(--lime); }
+    .charts-grid { display:grid; grid-template-columns:1fr; gap:14px; margin-bottom:18px; }
+    .charts-grid-two { display:grid; grid-template-columns:1fr; gap:14px; }
+    @media (min-width: 520px) { .charts-grid-two { grid-template-columns:1fr 1fr; } }
+    .chart-box { background:#11191b; border:1px solid var(--line); border-radius:16px; padding:14px; }
+    .chart-box h4 { margin:0 0 10px; font-size:12px; font-weight:750; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+    .chart-canvas-container { position:relative; width:100%; height:170px; }
+    .chart-canvas-container.doughnut-container { height:160px; }
+    .entry-box { background:#11191b; border:1px solid var(--line); border-radius:16px; padding:14px; }
+    .entry-box h4 { margin:0 0 12px; font-size:12px; font-weight:750; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+    .entry-form-row { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+    .entry-fields { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+    .entry-field { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--ink); font-weight:600; cursor:pointer; }
+    .entry-field input[type="date"] { height:38px; background:var(--panel); border:1px solid var(--line); color:var(--ink); border-radius:9px; padding:0 8px; font-size:12px; color-scheme:dark; }
+    .entry-checkbox { width:20px; height:20px; accent-color:var(--mint); cursor:pointer; }
+    .btn-save-analytics { height:38px; background:var(--lime); color:#172014; border:0; border-radius:9px; padding:0 16px; font-weight:800; font-size:12px; }
+    
     @media (min-width:641px) { body { background:#0b0f11; } .app { border-left:1px solid #263235; border-right:1px solid #263235; } }
   </style>
 </head>
@@ -62,6 +93,80 @@
     <section class="quick"><div class="quick-card"><span>Weekly progress</span><b id="weeklyStat">0 / 0</b></div><div class="quick-card"><span>Completed today</span><b id="todayStat">0 / 0</b></div></section>
     <aside class="install-card" id="installCard" hidden><p id="installCopy"><strong>Install Form</strong><br>Keep your tracker one tap away.</p><button id="installButton">Install</button></aside>
     <section id="workout"></section>
+    
+    <!-- Progress Analytics Section -->
+    <section class="analytics-card" id="analyticsSection">
+      <div class="analytics-header">
+        <div>
+          <div class="eyebrow">Analytics</div>
+          <h2>Progress Charts</h2>
+        </div>
+        <div class="analytics-tools">
+          <button class="tool-btn" id="exportDataBtn" title="Export JSON backup">Export JSON</button>
+          <button class="tool-btn" id="importDataBtn" title="Import JSON backup">Import JSON</button>
+          <input type="file" id="importFileInput" accept=".json" style="display:none">
+          <button class="tool-btn danger" id="resetDataBtn" title="Reset all progress">Reset</button>
+        </div>
+      </div>
+
+      <!-- Key Metrics Summary -->
+      <div class="analytics-metrics">
+        <div class="metric-box">
+          <span>Current Streak</span>
+          <b id="metricStreak">0 Days</b>
+        </div>
+        <div class="metric-box">
+          <span>Weekly Rate</span>
+          <b id="metricWeeklyPct">0%</b>
+        </div>
+        <div class="metric-box">
+          <span>Total Workouts</span>
+          <b id="metricTotalWorkouts">0</b>
+        </div>
+      </div>
+
+      <!-- Interactive Charts -->
+      <div class="charts-grid">
+        <div class="chart-box">
+          <h4>Daily Progress (Line)</h4>
+          <div class="chart-canvas-container">
+            <canvas id="dailyChartCanvas"></canvas>
+          </div>
+        </div>
+        <div class="charts-grid-two">
+          <div class="chart-box">
+            <h4>Weekly Progress (Bar)</h4>
+            <div class="chart-canvas-container">
+              <canvas id="weeklyChartCanvas"></canvas>
+            </div>
+          </div>
+          <div class="chart-box">
+            <h4>Completion Rate (Doughnut)</h4>
+            <div class="chart-canvas-container doughnut-container">
+              <canvas id="doughnutChartCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Entry Form -->
+      <div class="entry-box">
+        <h4>Log Workout Completion</h4>
+        <form id="analyticsEntryForm" class="entry-form-row" onsubmit="return false;">
+          <div class="entry-fields">
+            <label class="entry-field">
+              <span>Date:</span>
+              <input type="date" id="analyticsDateInput" required>
+            </label>
+            <label class="entry-field">
+              <input type="checkbox" id="analyticsCompletedCheckbox" class="entry-checkbox" checked>
+              <span>Workout Completed</span>
+            </label>
+          </div>
+          <button type="button" class="btn-save-analytics" id="saveAnalyticsEntryBtn">Save Entry</button>
+        </form>
+      </div>
+    </section>
   </main>
   <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"><div class="sheet-inner"><div class="handle"></div><h2 id="sheetTitle">Add an exercise</h2><div class="field"><label for="exerciseName">Exercise name</label><input id="exerciseName" autocomplete="off" placeholder="e.g. Cable row"></div><div class="field"><label for="exerciseSets">Number of sets</label><input id="exerciseSets" type="number" min="1" max="12" value="3" inputmode="numeric"></div><button class="save" id="saveExercise">Add to today</button><button class="reset" id="closeSheet">Cancel</button></div></div>
   <div class="toast" id="toast"></div>
@@ -93,7 +198,7 @@
     function setRows(id, ex){ const s=ensure(id); const count=Math.max(2, Number((ex[1]||'3').match(/^\d+/)?.[0]||3),s.sets.length); while(s.sets.length<count)s.sets.push({weight:'',reps:'',done:false}); return `<div class="sets-label"><span>Set</span><span>kg</span><span>reps</span><span></span></div>${s.sets.map((set,i)=>`<div class="set"><div class="set-no">${i+1}</div><input aria-label="Set ${i+1} weight" inputmode="decimal" type="number" placeholder="—" value="${set.weight}" data-input="weight" data-id="${id}" data-set="${i}"><input aria-label="Set ${i+1} reps" inputmode="numeric" type="number" placeholder="—" value="${set.reps}" data-input="reps" data-id="${id}" data-set="${i}"><button class="set-done ${set.done?'on':''}" data-setdone="${id}" data-index="${i}" aria-label="Mark set ${i+1} complete">✓</button></div>`).join('')}<button class="add-set" data-addset="${id}">+ Add set</button>`; }
     function renderWorkout(){ const el=$('#workout'), day=current(); if(day.rest){el.innerHTML=`<div class="rest-card"><div class="moon">☾</div><h2>Recovery counts.</h2><p>No training scheduled. Let your body adapt — an easy walk or a little mobility is plenty.</p></div>`; return;} const [done,total]=progress(day), exercises=exercisesFor(day); el.innerHTML=`<div class="section-head"><h3>Exercises</h3><button id="addExercise">+ Add exercise</button></div>${exercises.map((ex,i)=>{let id=`${day.id}-${i}`,s=ensure(id);return `<article class="exercise ${s.completed?'completed':''} ${s.open?'open':''}" data-card="${id}"><button class="exercise-main" data-toggle="${id}" aria-expanded="${s.open}"><span class="check" data-complete="${id}" role="button" tabindex="0" aria-label="Mark ${ex[0]} complete">✓</span><span class="exercise-info"><span class="exercise-name">${ex[0]}</span><span class="exercise-meta">${ex[1]} · ${ex[2]||'log your work'}</span></span><span class="chevron">›</span></button><div class="detail">${setRows(id,ex)}</div></article>`}).join('')}<button class="reset" id="resetDay">Reset ${day.day}'s log</button>`; bindWorkout(); }
     function bindWorkout(){ document.querySelectorAll('[data-toggle]').forEach(b=>b.onclick=()=>{const s=ensure(b.dataset.toggle); s.open=!s.open;save();renderWorkout()}); document.querySelectorAll('[data-complete]').forEach(b=>{const toggle=e=>{e.preventDefault();e.stopPropagation();const s=ensure(b.dataset.complete);s.completed=!s.completed;save();render();toast(s.completed?'Exercise complete':'Exercise reopened')};b.onclick=toggle;b.onpointerdown=e=>e.stopPropagation();b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){toggle(e)}}}); document.querySelectorAll('[data-setdone]').forEach(b=>b.onclick=()=>{const s=ensure(b.dataset.setdone);s.sets[+b.dataset.index].done=!s.sets[+b.dataset.index].done;save();renderWorkout()}); document.querySelectorAll('[data-addset]').forEach(b=>b.onclick=()=>{ensure(b.dataset.addset).sets.push({weight:'',reps:'',done:false});save();renderWorkout()}); document.querySelectorAll('[data-input]').forEach(i=>i.oninput=()=>{ensure(i.dataset.id).sets[+i.dataset.set][i.dataset.input]=i.value;save()}); $('#addExercise').onclick=()=>$('#sheet').classList.add('show'); $('#resetDay').onclick=()=>{if(confirm(`Reset ${current().day}'s workout log?`)){Object.keys(state).filter(key=>key.startsWith(`${selected}-`)).forEach(key=>delete state[key]);save();render();}}; }
-    function render(){localDate();renderWeek();renderHero();renderStats();renderWorkout();}
+    function render(){localDate();renderWeek();renderHero();renderStats();renderWorkout();renderAnalytics();}
     function toast(text){const t=$('#toast');t.textContent=text;t.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove('show'),1800)}
     $('#editPlan').onclick=()=>$('#sheet').classList.add('show'); $('#closeSheet').onclick=()=>$('#sheet').classList.remove('show'); $('#sheet').onclick=e=>{if(e.target===$('#sheet'))$('#sheet').classList.remove('show')}; $('#saveExercise').onclick=()=>{const name=$('#exerciseName').value.trim(), sets=Math.min(12,Math.max(1,+$('#exerciseSets').value||3));if(!name){$('#exerciseName').focus();return;}if(current().rest){toast('Choose a training day first');return;}(customExercises[selected] ||= []).push([name,`${sets} sets`,'']);save();$('#exerciseName').value='';$('#sheet').classList.remove('show');render();toast('Exercise added');};
     let installPrompt;
@@ -102,6 +207,341 @@
     window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;installCard.hidden=false;installButton.textContent='Install';installButton.onclick=async()=>{installPrompt.prompt();const choice=await installPrompt.userChoice;if(choice.outcome==='accepted')installCard.hidden=true;installPrompt=null;};});
     window.addEventListener('appinstalled',()=>{installCard.hidden=true;toast('Form installed');});
     if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+
+    // ==========================================
+    // PROGRESS ANALYTICS MODULE (Chart.js & LocalStorage)
+    // ==========================================
+    const ANALYTICS_STORAGE_KEY = 'form-analytics-records';
+    let dailyChartInstance = null;
+    let weeklyChartInstance = null;
+    let doughnutChartInstance = null;
+
+    function getTodayString() {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function getAnalyticsRecords() {
+      try {
+        const data = localStorage.getItem(ANALYTICS_STORAGE_KEY);
+        return data ? JSON.parse(data) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveAnalyticsRecords(records) {
+      records.sort((a, b) => a.date.localeCompare(b.date));
+      localStorage.setItem(ANALYTICS_STORAGE_KEY, JSON.stringify(records));
+    }
+
+    function initAnalyticsStorage() {
+      let records = getAnalyticsRecords();
+      if (records.length === 0) {
+        records = [];
+        const today = new Date();
+        for (let i = 13; i >= 0; i--) {
+          const d = new Date(today);
+          d.setDate(d.getDate() - i);
+          const dateStr = d.toISOString().split('T')[0];
+          const dayNum = d.getDay();
+          const isCompleted = (dayNum !== 0 && dayNum !== 4) ? 1 : 0;
+          records.push({ date: dateStr, completed: isCompleted });
+        }
+        saveAnalyticsRecords(records);
+      }
+    }
+
+    function upsertAnalyticsRecord(dateStr, isCompleted) {
+      let records = getAnalyticsRecords();
+      const existingIndex = records.findIndex(r => r.date === dateStr);
+      if (existingIndex >= 0) {
+        records[existingIndex].completed = isCompleted ? 1 : 0;
+      } else {
+        records.push({ date: dateStr, completed: isCompleted ? 1 : 0 });
+      }
+      saveAnalyticsRecords(records);
+      renderAnalytics();
+    }
+
+    function calculateMetrics(records) {
+      const totalCompleted = records.reduce((acc, r) => acc + (r.completed ? 1 : 0), 0);
+      const sorted = [...records].sort((a, b) => b.date.localeCompare(a.date));
+      let streak = 0;
+      const todayStr = getTodayString();
+      let checkDate = new Date();
+
+      let hasToday = sorted.find(r => r.date === todayStr);
+      if (!hasToday || !hasToday.completed) {
+        checkDate.setDate(checkDate.getDate() - 1);
+      }
+
+      while (true) {
+        const dStr = checkDate.toISOString().split('T')[0];
+        const record = sorted.find(r => r.date === dStr);
+        if (record && record.completed) {
+          streak++;
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+
+      const now = new Date();
+      const dayOfWeek = (now.getDay() + 6) % 7;
+      const monday = new Date(now);
+      monday.setDate(now.getDate() - dayOfWeek);
+
+      let weekDaysCompleted = 0;
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        const dStr = d.toISOString().split('T')[0];
+        const r = records.find(rec => rec.date === dStr);
+        if (r && r.completed) weekDaysCompleted++;
+      }
+      const weeklyPct = Math.round((weekDaysCompleted / 7) * 100);
+
+      return { streak, weeklyPct, totalCompleted, weekDaysCompleted };
+    }
+
+    function getWeekLabel(dateObj) {
+      const d = new Date(Date.UTC(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()));
+      const dayNum = d.getUTCDay() || 7;
+      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+      return `W${weekNo}`;
+    }
+
+    function renderAnalytics() {
+      if (typeof Chart === 'undefined') return;
+
+      const records = getAnalyticsRecords();
+      const metrics = calculateMetrics(records);
+
+      if ($('#metricStreak')) $('#metricStreak').textContent = `${metrics.streak} ${metrics.streak === 1 ? 'Day' : 'Days'}`;
+      if ($('#metricWeeklyPct')) $('#metricWeeklyPct').textContent = `${metrics.weeklyPct}%`;
+      if ($('#metricTotalWorkouts')) $('#metricTotalWorkouts').textContent = `${metrics.totalCompleted}`;
+
+      // 1. Daily Progress (Line Chart) - Last 14 days
+      const last14 = [];
+      const today = new Date();
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        const dStr = d.toISOString().split('T')[0];
+        const rec = records.find(r => r.date === dStr);
+        const label = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(d);
+        last14.push({ label, completed: rec ? rec.completed : 0 });
+      }
+
+      const dailyLabels = last14.map(item => item.label);
+      const dailyData = last14.map(item => item.completed);
+
+      const ctxDaily = $('#dailyChartCanvas')?.getContext('2d');
+      if (ctxDaily) {
+        if (dailyChartInstance) dailyChartInstance.destroy();
+        dailyChartInstance = new Chart(ctxDaily, {
+          type: 'line',
+          data: {
+            labels: dailyLabels,
+            datasets: [{
+              label: 'Workout Completed',
+              data: dailyData,
+              borderColor: '#72e4c1',
+              backgroundColor: 'rgba(114, 228, 193, 0.12)',
+              borderWidth: 2.5,
+              fill: true,
+              tension: 0.35,
+              pointBackgroundColor: '#c9f66b',
+              pointRadius: 4.5,
+              pointHoverRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                min: 0,
+                max: 1,
+                ticks: { stepSize: 1, callback: v => v ? 'Done' : 'Rest', color: '#9ba7a6', font: { size: 10 } },
+                grid: { color: '#2b383b' }
+              },
+              x: {
+                ticks: { color: '#9ba7a6', font: { size: 10 } },
+                grid: { color: '#182023' }
+              }
+            },
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+
+      // 2. Weekly Progress (Bar Chart) - Grouped by last 4 weeks
+      const weeklyMap = {};
+      const todayObj = new Date();
+      for (let i = 3; i >= 0; i--) {
+        const wDate = new Date(todayObj);
+        wDate.setDate(wDate.getDate() - (i * 7));
+        const label = getWeekLabel(wDate);
+        weeklyMap[label] = 0;
+      }
+      records.forEach(r => {
+        if (r.completed) {
+          const rDate = new Date(r.date);
+          const wLabel = getWeekLabel(rDate);
+          if (weeklyMap.hasOwnProperty(wLabel)) {
+            weeklyMap[wLabel]++;
+          }
+        }
+      });
+
+      const weeklyLabels = Object.keys(weeklyMap);
+      const weeklyData = Object.values(weeklyMap);
+
+      const ctxWeekly = $('#weeklyChartCanvas')?.getContext('2d');
+      if (ctxWeekly) {
+        if (weeklyChartInstance) weeklyChartInstance.destroy();
+        weeklyChartInstance = new Chart(ctxWeekly, {
+          type: 'bar',
+          data: {
+            labels: weeklyLabels,
+            datasets: [{
+              label: 'Workouts',
+              data: weeklyData,
+              backgroundColor: '#c9f66b',
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: { precision: 0, color: '#9ba7a6', font: { size: 10 } },
+                grid: { color: '#2b383b' }
+              },
+              x: {
+                ticks: { color: '#9ba7a6', font: { size: 10 } },
+                grid: { display: false }
+              }
+            },
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+
+      // 3. Completion Rate (Doughnut Chart) - Current week
+      const completedWeek = metrics.weekDaysCompleted;
+      const missedWeek = Math.max(0, 7 - completedWeek);
+
+      const ctxDoughnut = $('#doughnutChartCanvas')?.getContext('2d');
+      if (ctxDoughnut) {
+        if (doughnutChartInstance) doughnutChartInstance.destroy();
+        doughnutChartInstance = new Chart(ctxDoughnut, {
+          type: 'doughnut',
+          data: {
+            labels: ['Completed', 'Missed / Rest'],
+            datasets: [{
+              data: [completedWeek, missedWeek],
+              backgroundColor: ['#72e4c1', '#2b383b'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '72%',
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: { color: '#9ba7a6', font: { size: 11 } }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function setupAnalyticsEvents() {
+      const dateInput = $('#analyticsDateInput');
+      if (dateInput && !dateInput.value) {
+        dateInput.value = getTodayString();
+      }
+
+      if ($('#saveAnalyticsEntryBtn')) {
+        $('#saveAnalyticsEntryBtn').onclick = () => {
+          const dateVal = $('#analyticsDateInput').value;
+          const completedVal = $('#analyticsCompletedCheckbox').checked;
+          if (!dateVal) {
+            toast('Please select a date');
+            return;
+          }
+          upsertAnalyticsRecord(dateVal, completedVal);
+          toast('Progress record saved!');
+        };
+      }
+
+      if ($('#exportDataBtn')) {
+        $('#exportDataBtn').onclick = () => {
+          const records = getAnalyticsRecords();
+          const jsonStr = JSON.stringify(records, null, 2);
+          const blob = new Blob([jsonStr], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `workout-progress-backup-${getTodayString()}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+          toast('Backup exported!');
+        };
+      }
+
+      if ($('#importDataBtn')) $('#importDataBtn').onclick = () => $('#importFileInput').click();
+
+      if ($('#importFileInput')) {
+        $('#importFileInput').onchange = (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            try {
+              const records = JSON.parse(event.target.result);
+              if (Array.isArray(records)) {
+                saveAnalyticsRecords(records);
+                renderAnalytics();
+                toast('Progress imported successfully!');
+              } else {
+                alert('Invalid file format. Expected a JSON array of records.');
+              }
+            } catch (err) {
+              alert('Failed to parse JSON file.');
+            }
+          };
+          reader.readAsText(file);
+        };
+      }
+
+      if ($('#resetDataBtn')) {
+        $('#resetDataBtn').onclick = () => {
+          if (confirm('Are you sure you want to reset all progress chart data? This action cannot be undone.')) {
+            localStorage.removeItem(ANALYTICS_STORAGE_KEY);
+            initAnalyticsStorage();
+            renderAnalytics();
+            toast('Progress reset');
+          }
+        };
+      }
+    }
+
+    initAnalyticsStorage();
+    setupAnalyticsEvents();
     render();
   </script>
 </body>
