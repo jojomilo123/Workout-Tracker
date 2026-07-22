@@ -116,6 +116,9 @@
     .view-section { display: none; }
     .view-section.active { display: block; }
 
+    .sched-btn { border: 1px solid var(--line); background: #11191b; color: var(--muted); border-radius: 10px; padding: 6px 2px; font-size: 11px; font-weight: 700; text-align: center; }
+    .sched-btn.workout { background: rgba(114,228,193,.15); border-color: var(--mint); color: var(--mint); }
+
     .toast { position: fixed; bottom: calc(22px + env(safe-area-inset-bottom)); left: 50%; transform: translate(-50%,16px); opacity: 0; pointer-events: none; transition: .24s; background: #e8f4ef; color: #13201c; padding: 10px 14px; border-radius: 99px; font-size: 13px; font-weight: 750; box-shadow: var(--shadow); white-space: nowrap; z-index: 20; }
     .toast.show { transform: translate(-50%,0); opacity: 1; }
 
@@ -151,26 +154,59 @@
 
   <!-- PROGRESS TAB -->
   <section class="view-section" id="view-charts">
-    <div class="quick" style="margin-bottom:16px">
-      <div class="quick-card"><span>Active days (7d)</span><b id="cStreak">0</b></div>
-      <div class="quick-card"><span>Weekly rate</span><b id="cRate">0%</b></div>
+    <!-- Mode Switcher: 7 Days / Monthly / Lifetime -->
+    <div class="view-tabs" style="margin-bottom:14px">
+      <button class="tab-btn active" data-cmode="7d">7 Days</button>
+      <button class="tab-btn" data-cmode="month">Monthly</button>
+      <button class="tab-btn" data-cmode="lifetime">Lifetime</button>
     </div>
+
+    <!-- Month Navigator (Monthly mode only) -->
+    <div class="month-nav-bar" id="monthNav" style="display:none; align-items:center; justify-content:space-between; margin-bottom:14px; background:var(--panel); padding:8px 12px; border-radius:14px; border:1px solid var(--line);">
+      <button class="tool-btn" id="btnPrevMonth" style="margin:0; padding:6px 12px;">← Prev</button>
+      <span id="monthTitle" style="font-weight:750; font-size:14px; color:var(--lime);">July 2026</span>
+      <button class="tool-btn" id="btnNextMonth" style="margin:0; padding:6px 12px;">Next →</button>
+    </div>
+
+    <!-- Top Quick Stats (7d & Monthly modes) -->
+    <div class="quick" style="margin-bottom:16px" id="chartQuickStats">
+      <div class="quick-card"><span id="cStreakLabel">Current Streak</span><b id="cStreak">0 Days</b></div>
+      <div class="quick-card"><span id="cRateLabel">Completion Rate</span><b id="cRate">0%</b></div>
+    </div>
+
+    <!-- Lifetime Stats Grid (Lifetime mode only) -->
+    <div class="quick" id="lifetimeStats" style="display:none; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:16px;">
+      <div class="quick-card"><span>Total Workouts</span><b id="ltWorkouts">0</b></div>
+      <div class="quick-card"><span>Total Volume</span><b id="ltVolume">0 kg</b></div>
+      <div class="quick-card"><span>Total Sets</span><b id="ltSets">0</b></div>
+      <div class="quick-card"><span>Total Reps</span><b id="ltReps">0</b></div>
+      <div class="quick-card"><span>Current Streak</span><b id="ltStreak">0 Days</b></div>
+      <div class="quick-card"><span>Longest Streak</span><b id="ltLongest">0 Days</b></div>
+    </div>
+
+    <!-- Chart Cards -->
     <div class="chart-card">
-      <h4>Daily Activity — Last 7 Days</h4>
+      <h4 id="chart1Title">Daily Activity — Last 7 Days</h4>
       <div class="chart-wrap"><canvas id="cvLine"></canvas></div>
     </div>
     <div class="chart-card">
-      <h4>This Week — Exercises Completed</h4>
+      <h4 id="chart2Title">This Week — Exercises Completed</h4>
       <div class="chart-wrap"><canvas id="cvBar"></canvas></div>
     </div>
     <div class="chart-card">
-      <h4>Today — Completion Rate</h4>
+      <h4 id="chart3Title">Today — Completion Rate</h4>
       <div class="chart-wrap"><canvas id="cvDot"></canvas></div>
     </div>
   </section>
 
-  <!-- BACKUP TAB -->
+  <!-- BACKUP & SETTINGS TAB -->
   <section class="view-section" id="view-backup">
+    <div class="chart-card">
+      <h4>Workout Schedule & Rest Days</h4>
+      <p style="color:var(--muted);font-size:13px;margin:0 0 12px">Customize workout days. Rest days will never break your streak.</p>
+      <div id="scheduleGrid" style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:6px;"></div>
+    </div>
+
     <div class="chart-card">
       <h4>Backup & Restore</h4>
       <p style="color:var(--muted);font-size:13px;margin:0 0 14px">All progress saves automatically. Export to keep a copy.</p>
@@ -178,6 +214,7 @@
       <button class="tool-btn" id="btnImport">Import JSON</button>
       <input type="file" id="fileInput" accept=".json" style="display:none">
     </div>
+
     <div class="chart-card">
       <h4>Reset All Data</h4>
       <p style="color:var(--muted);font-size:13px;margin:0 0 14px">Permanently erase all workout history.</p>
@@ -239,7 +276,7 @@ const PLAN = [
 ];
 
 // ═══════════════════════════════════════════════════════
-// DATE UTILS — always LOCAL date, never UTC
+// DATE UTILS — always LOCAL date
 // ═══════════════════════════════════════════════════════
 function localISO(d) {
   const Y = d.getFullYear();
@@ -256,33 +293,73 @@ function localDOW(d) {
 }
 
 // ═══════════════════════════════════════════════════════
-// STORAGE — keyed by YYYY-MM-DD (local), data never lost
+// STORAGE & MIGRATION — 100% backward compatible
 // ═══════════════════════════════════════════════════════
-const LOGS_KEY   = 'form-logs-v2';
-const CUSTOM_KEY = 'form-custom-v2';
-let logs   = JSON.parse(localStorage.getItem(LOGS_KEY)   || '{}');
-let custom = JSON.parse(localStorage.getItem(CUSTOM_KEY) || '{}');
-function saveLogs()   { localStorage.setItem(LOGS_KEY,   JSON.stringify(logs));   }
-function saveCustom() { localStorage.setItem(CUSTOM_KEY, JSON.stringify(custom)); }
+const LOGS_KEY     = 'form-logs-v2';
+const CUSTOM_KEY   = 'form-custom-v2';
+const SCHED_KEY    = 'form-schedule-v1';
+
+let logs     = JSON.parse(localStorage.getItem(LOGS_KEY)     || '{}');
+let custom   = JSON.parse(localStorage.getItem(CUSTOM_KEY)   || '{}');
+let schedule = JSON.parse(localStorage.getItem(SCHED_KEY)    || 'null');
+
+if (!schedule) {
+  schedule = PLAN.map(p => !p.rest); // default boolean array [true, true, true, false, true, true, true]
+}
+
+function saveLogs()     { localStorage.setItem(LOGS_KEY,   JSON.stringify(logs)); invalidateCache(); }
+function saveCustom()   { localStorage.setItem(CUSTOM_KEY, JSON.stringify(custom)); }
+function saveSchedule() { localStorage.setItem(SCHED_KEY,  JSON.stringify(schedule)); invalidateCache(); }
+
+// Seamless automatic migration from legacy localStorage keys
+(function migrateData() {
+  let changed = false;
+  // Legacy format 1: form-workout-v2
+  const v2Data = localStorage.getItem('form-workout-v2');
+  if (v2Data) {
+    try {
+      const parsed = JSON.parse(v2Data);
+      Object.keys(parsed).forEach(k => {
+        const parts = k.split('-');
+        if (parts.length === 4) {
+          const ds = `${parts[0]}-${parts[1]}-${parts[2]}`;
+          const exIdx = parts[3];
+          if (!logs[ds]) logs[ds] = {};
+          if (!logs[ds][exIdx]) { logs[ds][exIdx] = parsed[k]; changed = true; }
+        }
+      });
+    } catch(e) {}
+  }
+  // Legacy format 2: form-logs-v1
+  const v1Data = localStorage.getItem('form-logs-v1');
+  if (v1Data) {
+    try {
+      const parsed = JSON.parse(v1Data);
+      Object.keys(parsed).forEach(ds => {
+        if (!logs[ds]) { logs[ds] = parsed[ds]; changed = true; }
+      });
+    } catch(e) {}
+  }
+  if (changed) saveLogs();
+})();
 
 function getEntry(dateStr, idx) {
-  if (!logs[dateStr])    logs[dateStr] = {};
+  if (!logs[dateStr])      logs[dateStr] = {};
   if (!logs[dateStr][idx]) logs[dateStr][idx] = { completed:false, open:false, sets:[] };
   return logs[dateStr][idx];
 }
 
 // ═══════════════════════════════════════════════════════
-// STATE
+// STATE & SELECTION
 // ═══════════════════════════════════════════════════════
-const TODAY      = new Date();
-const TODAY_ISO  = localISO(TODAY);
-const TODAY_DOW  = localDOW(TODAY);
+const TODAY     = new Date();
+const TODAY_ISO = localISO(TODAY);
+const TODAY_DOW = localDOW(TODAY);
 
 let selDate    = TODAY_ISO;
 let selPlanIdx = TODAY_DOW;
 
 let weekDates = [];
-
 function buildWeek() {
   const d    = parseLocal(selDate);
   const dow  = localDOW(d);
@@ -292,18 +369,158 @@ function buildWeek() {
   );
 }
 
+// Progress chart state: mode ('7d', 'month', 'lifetime')
+let chartMode = '7d';
+let viewMonth = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1);
+
 // ═══════════════════════════════════════════════════════
 // PLAN HELPERS
 // ═══════════════════════════════════════════════════════
-function planDay(idx)  { return PLAN[idx]; }
-function exList(idx)   { return [...PLAN[idx].exercises, ...(custom[PLAN[idx].id] || [])]; }
+function isRestDay(dow) { return !schedule[dow]; }
+function planDay(idx)   { return PLAN[idx]; }
+function exList(idx)    { return [...PLAN[idx].exercises, ...(custom[PLAN[idx].id] || [])]; }
 
 function progress(dateStr, planIdx) {
-  const day = PLAN[planIdx];
-  if (day.rest) return [0, 0];
-  const exs = exList(planIdx);
+  const dow = (planIdx !== undefined) ? planIdx : localDOW(parseLocal(dateStr));
+  if (isRestDay(dow)) return [0, 0];
+  const exs = exList(dow);
   const done = exs.filter((_, i) => logs[dateStr]?.[i]?.completed).length;
   return [done, exs.length];
+}
+
+// ═══════════════════════════════════════════════════════
+// SMART STREAK & CACHED STATISTICS SYSTEM
+// ═══════════════════════════════════════════════════════
+let statsCache = null;
+function invalidateCache() { statsCache = null; }
+
+function getStats() {
+  if (statsCache) return statsCache;
+
+  // 1. Calculate Smart Streaks
+  let currentStreak = 0;
+  let isTodayPending = false;
+  let curr = parseLocal(TODAY_ISO);
+
+  // Check today
+  const todayDow = localDOW(curr);
+  const todayRest = isRestDay(todayDow);
+  const [todayDone, todayTotal] = progress(TODAY_ISO, todayDow);
+  const todayCompleted = (todayTotal > 0 && todayDone > 0);
+
+  if (!todayRest && !todayCompleted) {
+    isTodayPending = true;
+    curr.setDate(curr.getDate() - 1); // Walk backwards from yesterday
+  }
+
+  let limit = 0;
+  while (limit < 1095) { // 3 years max
+    limit++;
+    const ds = localISO(curr);
+    const dow = localDOW(curr);
+    const rest = isRestDay(dow);
+    const [done, total] = progress(ds, dow);
+    const completed = (total > 0 && done > 0);
+
+    if (completed) {
+      currentStreak++;
+    } else if (rest) {
+      // Rest day does NOT break streak
+    } else {
+      // Past scheduled workout day missed -> streak breaks!
+      break;
+    }
+    curr.setDate(curr.getDate() - 1);
+  }
+
+  // Calculate Longest Streak
+  const allDates = Object.keys(logs).sort();
+  let longestStreak = 0;
+  let running = 0;
+  let start = parseLocal(TODAY_ISO);
+  if (allDates.length > 0) {
+    const earliest = parseLocal(allDates[0]);
+    if (earliest < start) start = earliest;
+  } else {
+    start.setDate(start.getDate() - 30);
+  }
+
+  let step = new Date(start);
+  const end = parseLocal(TODAY_ISO);
+
+  while (step <= end) {
+    const ds = localISO(step);
+    const dow = localDOW(step);
+    const rest = isRestDay(dow);
+    const [done, total] = progress(ds, dow);
+    const completed = (total > 0 && done > 0);
+
+    if (completed) {
+      running++;
+      if (running > longestStreak) longestStreak = running;
+    } else if (rest) {
+      // Rest day keeps running streak alive
+    } else if (ds === TODAY_ISO && isTodayPending) {
+      // Today pending doesn't break historical streak
+    } else {
+      running = 0;
+    }
+    step.setDate(step.getDate() + 1);
+  }
+
+  // 2. Calculate Lifetime Totals
+  let totalWorkouts = 0;
+  let totalSets = 0;
+  let totalReps = 0;
+  let totalVolume = 0;
+  const monthlyData = {}; // { "YYYY-MM": { workouts: 0, volume: 0, sets: 0 } }
+
+  Object.keys(logs).forEach(ds => {
+    const dayLog = logs[ds];
+    if (!dayLog) return;
+
+    let hasDoneEx = false;
+    const monthKey = ds.substring(0, 7);
+    if (!monthlyData[monthKey]) {
+      monthlyData[monthKey] = { workouts: 0, volume: 0, sets: 0, reps: 0 };
+    }
+
+    Object.keys(dayLog).forEach(exIdx => {
+      const entry = dayLog[exIdx];
+      if (entry && entry.completed) hasDoneEx = true;
+      if (entry && Array.isArray(entry.sets)) {
+        entry.sets.forEach(s => {
+          if (s.done || (entry && entry.completed)) {
+            const w = parseFloat(s.weight) || 0;
+            const r = parseInt(s.reps) || 0;
+            totalSets++;
+            totalReps += r;
+            totalVolume += (w * r);
+            monthlyData[monthKey].sets++;
+            monthlyData[monthKey].reps += r;
+            monthlyData[monthKey].volume += (w * r);
+          }
+        });
+      }
+    });
+
+    if (hasDoneEx) {
+      totalWorkouts++;
+      monthlyData[monthKey].workouts++;
+    }
+  });
+
+  statsCache = {
+    currentStreak,
+    longestStreak,
+    isTodayPending,
+    totalWorkouts,
+    totalSets,
+    totalReps,
+    totalVolume,
+    monthlyData
+  };
+  return statsCache;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -322,7 +539,7 @@ function renderWeek() {
     btn.className = [
       'day',
       isSel  ? 'active' : '',
-      day.rest ? 'rest' : '',
+      isRestDay(i) ? 'rest' : '',
       isDone && !isSel ? 'done' : ''
     ].join(' ').trim();
     const dateNum = parseLocal(ds).getDate();
@@ -337,11 +554,12 @@ function renderWeek() {
 // ═══════════════════════════════════════════════════════
 function renderHero() {
   const day = planDay(selPlanIdx);
+  const rest = isRestDay(selPlanIdx);
   const [done, total] = progress(selDate, selPlanIdx);
   const pct = total ? Math.round(done / total * 100) : 0;
   const el = document.getElementById('hero');
   el.className = 'hero';
-  if (day.rest) {
+  if (rest) {
     el.innerHTML =
       `<div class="hero-row"><div><div class="eyebrow">Recovery</div><h2>${day.title}</h2><p>${day.focus}</p></div>` +
       `<div class="score">☾<small>go easy</small></div></div>`;
@@ -385,12 +603,13 @@ function setRowsHTML(ds, exIdx, ex) {
 }
 
 function renderWorkout() {
-  const el  = document.getElementById('workout');
-  const day = planDay(selPlanIdx);
-  if (day.rest) {
+  const el   = document.getElementById('workout');
+  const day  = planDay(selPlanIdx);
+  const rest = isRestDay(selPlanIdx);
+  if (rest) {
     el.innerHTML =
       `<div class="rest-card"><div class="moon">☾</div><h2>Recovery counts.</h2>` +
-      `<p>No training today — rest, walk, or do light mobility. Your body is adapting.</p></div>`;
+      `<p>No training scheduled today. Rest days will never break your streak.</p></div>`;
     return;
   }
   const exs = exList(selPlanIdx);
@@ -429,7 +648,7 @@ function renderWorkout() {
       saveLogs(); render();
       showToast(entry.completed ? 'Done ✓' : 'Reopened');
     };
-    span.onclick  = go;
+    span.onclick   = go;
     span.onkeydown = e => { if (e.key==='Enter'||e.key===' ') go(e); };
   });
 
@@ -468,6 +687,29 @@ function renderWorkout() {
 }
 
 // ═══════════════════════════════════════════════════════
+// RENDER — SCHEDULE CUSTOMIZER GRID (Settings tab)
+// ═══════════════════════════════════════════════════════
+function renderScheduleGrid() {
+  const el = document.getElementById('scheduleGrid');
+  if (!el) return;
+  el.innerHTML = '';
+  PLAN.forEach((day, i) => {
+    const isWork = schedule[i];
+    const btn = document.createElement('button');
+    btn.className = `sched-btn ${isWork ? 'workout' : ''}`;
+    btn.innerHTML = `${day.short}<br><small style="font-size:9px">${isWork ? 'Work' : 'Rest'}</small>`;
+    btn.onclick = () => {
+      schedule[i] = !schedule[i];
+      saveSchedule();
+      renderScheduleGrid();
+      render();
+      showToast(`${day.label}: ${schedule[i] ? 'Workout' : 'Rest'}`);
+    };
+    el.appendChild(btn);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
 // MAIN RENDER
 // ═══════════════════════════════════════════════════════
 function render() {
@@ -478,14 +720,15 @@ function render() {
   renderHero();
   renderStats();
   renderWorkout();
+  renderScheduleGrid();
 }
 
 // ═══════════════════════════════════════════════════════
-// TABS
+// TABS & MODE SWITCHING
 // ═══════════════════════════════════════════════════════
-document.querySelectorAll('.tab-btn').forEach(btn => {
+document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
   btn.onclick = () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById(btn.dataset.tab).classList.add('active');
@@ -493,10 +736,61 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   };
 });
 
+document.querySelectorAll('.tab-btn[data-cmode]').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.tab-btn[data-cmode]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    chartMode = btn.dataset.cmode;
+    updateChartModeUI();
+    scheduleCharts();
+  };
+});
+
+function updateChartModeUI() {
+  const mNav    = document.getElementById('monthNav');
+  const qStats  = document.getElementById('chartQuickStats');
+  const ltStats = document.getElementById('lifetimeStats');
+  const t1 = document.getElementById('chart1Title');
+  const t2 = document.getElementById('chart2Title');
+  const t3 = document.getElementById('chart3Title');
+
+  mNav.style.display    = (chartMode === 'month') ? 'flex' : 'none';
+  qStats.style.display  = (chartMode !== 'lifetime') ? 'grid' : 'none';
+  ltStats.style.display = (chartMode === 'lifetime') ? 'grid' : 'none';
+
+  if (chartMode === '7d') {
+    t1.textContent = 'Daily Activity — Last 7 Days';
+    t2.textContent = 'This Week — Exercises Completed';
+    t3.textContent = 'Today — Completion Rate';
+  } else if (chartMode === 'month') {
+    const mName = new Intl.DateTimeFormat('en-US', {month:'long', year:'numeric'}).format(viewMonth);
+    document.getElementById('monthTitle').textContent = mName;
+    t1.textContent = `Daily Activity — ${mName}`;
+    t2.textContent = `Weekly Summary — ${mName}`;
+    t3.textContent = `Monthly Completion Rate`;
+  } else if (chartMode === 'lifetime') {
+    t1.textContent = 'Monthly Volume Progression (kg)';
+    t2.textContent = 'Workouts Completed Per Month';
+    t3.textContent = 'All-Time Exercise Volume Distribution';
+  }
+}
+
+// Month Navigation
+document.getElementById('btnPrevMonth').onclick = () => {
+  viewMonth.setMonth(viewMonth.getMonth() - 1);
+  updateChartModeUI();
+  scheduleCharts();
+};
+document.getElementById('btnNextMonth').onclick = () => {
+  viewMonth.setMonth(viewMonth.getMonth() + 1);
+  updateChartModeUI();
+  scheduleCharts();
+};
+
 // ═══════════════════════════════════════════════════════
 // ADD EXERCISE SHEET
 // ═══════════════════════════════════════════════════════
-function openSheet() { document.getElementById('sheet').classList.add('show'); }
+function openSheet()  { document.getElementById('sheet').classList.add('show'); }
 function closeSheet() { document.getElementById('sheet').classList.remove('show'); }
 
 document.getElementById('btnAddEx').onclick = openSheet;
@@ -506,7 +800,7 @@ document.getElementById('btnSaveEx').onclick = () => {
   const name = document.getElementById('exName').value.trim();
   const sets = Math.min(12, Math.max(1, +document.getElementById('exSets').value || 3));
   if (!name) { document.getElementById('exName').focus(); return; }
-  if (planDay(selPlanIdx).rest) { showToast('Pick a training day first'); return; }
+  if (isRestDay(selPlanIdx)) { showToast('Pick a training day first'); return; }
   (custom[PLAN[selPlanIdx].id] ||= []).push([name, `${sets} sets`, '']);
   saveCustom();
   document.getElementById('exName').value = '';
@@ -527,10 +821,10 @@ function showToast(text) {
 }
 
 // ═══════════════════════════════════════════════════════
-// BACKUP
+// BACKUP & RESTORE
 // ═══════════════════════════════════════════════════════
 document.getElementById('btnExport').onclick = () => {
-  const blob = new Blob([JSON.stringify({logs, custom}, null, 2)], {type:'application/json'});
+  const blob = new Blob([JSON.stringify({logs, custom, schedule}, null, 2)], {type:'application/json'});
   const url  = URL.createObjectURL(blob);
   const a    = Object.assign(document.createElement('a'), {href:url, download:`form-backup-${TODAY_ISO}.json`});
   a.click(); URL.revokeObjectURL(url);
@@ -541,7 +835,15 @@ document.getElementById('fileInput').onchange = e => {
   const f = e.target.files[0]; if (!f) return;
   const r = new FileReader();
   r.onload = ev => {
-    try { const d = JSON.parse(ev.target.result); if (d.logs) { logs = d.logs; custom = d.custom||{}; saveLogs(); saveCustom(); render(); showToast('Restored!'); } } catch { alert('Invalid file.'); }
+    try {
+      const d = JSON.parse(ev.target.result);
+      if (d.logs) {
+        logs = d.logs;
+        custom = d.custom || {};
+        if (Array.isArray(d.schedule)) schedule = d.schedule;
+        saveLogs(); saveCustom(); saveSchedule(); render(); showToast('Restored!');
+      }
+    } catch { alert('Invalid file.'); }
   };
   r.readAsText(f); e.target.value = '';
 };
@@ -551,7 +853,7 @@ document.getElementById('btnReset').onclick = () => {
 };
 
 // ═══════════════════════════════════════════════════════
-// CANVAS CHARTS — Responsive & iOS-safe Retina rendering
+// CANVAS CHARTS — Responsive & High DPI Engine
 // ═══════════════════════════════════════════════════════
 function sizeCanvas(id) {
   const canvas = document.getElementById(id);
@@ -567,11 +869,8 @@ function sizeCanvas(id) {
   }
 
   const ctx = canvas.getContext('2d');
-  if (ctx.resetTransform) {
-    ctx.resetTransform();
-  } else {
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-  }
+  if (ctx.resetTransform) ctx.resetTransform();
+  else ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.scale(dpr, dpr);
 
   return { ctx, W: cssW, H: cssH };
@@ -592,126 +891,254 @@ function drawBar(ctx, x, y, w, h, r) {
   ctx.fill();
 }
 
+// ───────────────────────────────────────────────────────
+// LINE CHART (7d / Monthly / Lifetime Volume)
+// ───────────────────────────────────────────────────────
 function drawLine() {
   const { ctx, W, H } = sizeCanvas('cvLine');
   if (!ctx) return;
   ctx.clearRect(0, 0, W, H);
+
+  const stats = getStats();
+  document.getElementById('cStreak').textContent = stats.currentStreak + ' Days';
+  if (stats.isTodayPending) {
+    document.getElementById('cStreakLabel').textContent = 'Scheduled Today';
+  } else {
+    document.getElementById('cStreakLabel').textContent = 'Current Streak';
+  }
+
+  let pts = [];
   const px = Math.max(20, W * 0.08), py = 20, cH = H - py * 2, cW = W - px * 2;
 
-  const pts = Array.from({length:7}, (_, k) => {
-    const d   = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate() - (6 - k));
-    const ds  = localISO(d);
-    const dow = localDOW(d);
-    const [done, total] = progress(ds, dow);
-    const val = total > 0 ? done / total : 0;
-    return { x: px + k * (cW / 6), y: H - py - val * (cH - 10), val, lbl: PLAN[dow].short };
-  });
+  if (chartMode === '7d') {
+    pts = Array.from({length:7}, (_, k) => {
+      const d   = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate() - (6 - k));
+      const ds  = localISO(d);
+      const dow = localDOW(d);
+      const [done, total] = progress(ds, dow);
+      const val = total > 0 ? done / total : 0;
+      return { x: px + k * (cW / 6), y: H - py - val * (cH - 10), val, lbl: PLAN[dow].short };
+    });
+    const active = pts.filter(p => p.val > 0).length;
+    document.getElementById('cRate').textContent = `${Math.round(active / 7 * 100)}%`;
+  }
+  else if (chartMode === 'month') {
+    const y = viewMonth.getFullYear(), m = viewMonth.getMonth();
+    const daysInM = new Date(y, m + 1, 0).getDate();
+    let doneDays = 0;
 
+    pts = Array.from({length: daysInM}, (_, k) => {
+      const d = new Date(y, m, k + 1);
+      const ds = localISO(d);
+      const dow = localDOW(d);
+      const [done, total] = progress(ds, dow);
+      const val = total > 0 ? done / total : 0;
+      if (val > 0) doneDays++;
+      const lbl = (k === 0 || (k + 1) % 5 === 0 || k === daysInM - 1) ? String(k + 1) : '';
+      return { x: px + k * (cW / Math.max(1, daysInM - 1)), y: H - py - val * (cH - 10), val, lbl };
+    });
+    document.getElementById('cRate').textContent = `${Math.round(doneDays / daysInM * 100)}%`;
+  }
+  else if (chartMode === 'lifetime') {
+    // Lifetime Monthly Volume Progression Line
+    const mKeys = Object.keys(stats.monthlyData).sort();
+    if (mKeys.length === 0) mKeys.push(TODAY_ISO.substring(0,7));
+    const maxVol = Math.max(...mKeys.map(k => stats.monthlyData[k]?.volume || 0), 100);
+
+    pts = mKeys.map((mk, i) => {
+      const vol = stats.monthlyData[mk]?.volume || 0;
+      const ratio = vol / maxVol;
+      const lbl = mk.substring(2); // "26-07"
+      return { x: px + i * (cW / Math.max(1, mKeys.length - 1)), y: H - py - ratio * (cH - 10), val: ratio, lbl };
+    });
+  }
+
+  if (pts.length < 2) return;
+
+  // Baseline
   ctx.strokeStyle = '#2b383b'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(px, H - py); ctx.lineTo(W - px, H - py); ctx.stroke();
 
+  // Gradient fill
   const g = ctx.createLinearGradient(0, 0, 0, H);
   g.addColorStop(0, 'rgba(114,228,193,0.28)'); g.addColorStop(1, 'rgba(114,228,193,0)');
   ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
   pts.forEach(p => ctx.lineTo(p.x, p.y));
-  ctx.lineTo(pts[6].x, H - py); ctx.lineTo(pts[0].x, H - py); ctx.closePath();
+  ctx.lineTo(pts[pts.length - 1].x, H - py); ctx.lineTo(pts[0].x, H - py); ctx.closePath();
   ctx.fillStyle = g; ctx.fill();
 
+  // Line
   ctx.strokeStyle = '#72e4c1'; ctx.lineWidth = 3; ctx.lineJoin = 'round';
   ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
   pts.forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke();
 
+  // Dots + labels
   ctx.font = 'bold 10px -apple-system,sans-serif'; ctx.textAlign = 'center';
   pts.forEach(p => {
-    ctx.beginPath(); ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
-    ctx.fillStyle = p.val >= 1 ? '#c9f66b' : p.val > 0 ? '#72e4c1' : '#2b3c3f'; ctx.fill();
-    ctx.fillStyle = '#9ba7a6'; ctx.fillText(p.lbl, p.x, H - 4);
+    if (chartMode !== 'month' || p.lbl) {
+      ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = p.val >= 1 ? '#c9f66b' : p.val > 0 ? '#72e4c1' : '#2b3c3f'; ctx.fill();
+    }
+    if (p.lbl) {
+      ctx.fillStyle = '#9ba7a6'; ctx.fillText(p.lbl, p.x, H - 4);
+    }
   });
-
-  const active = pts.filter(p => p.val > 0).length;
-  document.getElementById('cStreak').textContent = active;
-  document.getElementById('cRate').textContent   = `${Math.round(active / 7 * 100)}%`;
 }
 
+// ───────────────────────────────────────────────────────
+// BAR CHART (7d / Monthly / Lifetime Workouts)
+// ───────────────────────────────────────────────────────
 function drawBar_() {
   const { ctx, W, H } = sizeCanvas('cvBar');
   if (!ctx) return;
   ctx.clearRect(0, 0, W, H);
   const px = Math.max(16, W * 0.06), py = 20, cH = H - py * 2, cW = W - px * 2;
-  const training = PLAN.map((d, i) => ({day: d, ds: weekDates[i], idx: i})).filter(x => !x.day.rest);
-  const n = training.length, gap = cW / n, barW = Math.min(26, gap * 0.52);
+  const stats = getStats();
 
   ctx.strokeStyle = '#2b383b'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(px, H - py); ctx.lineTo(W - px, H - py); ctx.stroke();
 
-  training.forEach(({day, ds, idx}, k) => {
-    const [done, total] = progress(ds, idx);
-    const ratio = total > 0 ? done / total : 0;
-    const bH = Math.max(ratio * cH, ratio > 0 ? 4 : 0);
-    const x  = px + k * gap + (gap - barW) / 2;
-    const y  = H - py - bH;
-    ctx.fillStyle = done === total && total > 0 ? '#c9f66b' : '#72e4c1';
-    drawBar(ctx, x, y, barW, bH, 5);
-    ctx.fillStyle = '#9ba7a6';
-    ctx.font = '9px -apple-system,sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText(day.short, x + barW / 2, H - 4);
-    if (total > 0) {
-      ctx.fillStyle = done === total ? '#c9f66b' : '#72e4c1';
-      const ty = (bH > 20) ? y - 4 : y - 8;
-      ctx.fillText(`${done}/${total}`, x + barW / 2, Math.max(ty, py + 12));
+  if (chartMode === '7d') {
+    const training = PLAN.map((d, i) => ({day: d, ds: weekDates[i], idx: i})).filter(x => !isRestDay(x.idx));
+    const n = training.length, gap = cW / Math.max(1, n), barW = Math.min(26, gap * 0.52);
+
+    training.forEach(({day, ds, idx}, k) => {
+      const [done, total] = progress(ds, idx);
+      const ratio = total > 0 ? done / total : 0;
+      const bH = Math.max(ratio * cH, ratio > 0 ? 4 : 0);
+      const x  = px + k * gap + (gap - barW) / 2;
+      const y  = H - py - bH;
+      ctx.fillStyle = done === total && total > 0 ? '#c9f66b' : '#72e4c1';
+      drawBar(ctx, x, y, barW, bH, 5);
+      ctx.fillStyle = '#9ba7a6';
+      ctx.font = '9px -apple-system,sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(day.short, x + barW / 2, H - 4);
+      if (total > 0) {
+        ctx.fillStyle = done === total ? '#c9f66b' : '#72e4c1';
+        const ty = (bH > 20) ? y - 4 : y - 8;
+        ctx.fillText(`${done}/${total}`, x + barW / 2, Math.max(ty, py + 12));
+      }
+    });
+  }
+  else if (chartMode === 'month') {
+    // 4 Weeks summary in current month
+    const y = viewMonth.getFullYear(), m = viewMonth.getMonth();
+    const weeks = [ {lbl:'W1', done:0}, {lbl:'W2', done:0}, {lbl:'W3', done:0}, {lbl:'W4', done:0} ];
+    const daysInM = new Date(y, m + 1, 0).getDate();
+
+    for (let d = 1; d <= daysInM; d++) {
+      const ds = localISO(new Date(y, m, d));
+      const wIdx = Math.min(3, Math.floor((d - 1) / 7));
+      const [done] = progress(ds);
+      weeks[wIdx].done += done;
     }
-  });
+
+    const maxW = Math.max(...weeks.map(w => w.done), 1);
+    const gap = cW / 4, barW = Math.min(32, gap * 0.5);
+
+    weeks.forEach((w, k) => {
+      const ratio = w.done / maxW;
+      const bH = ratio * cH;
+      const x = px + k * gap + (gap - barW) / 2;
+      const y = H - py - bH;
+      ctx.fillStyle = '#72e4c1';
+      drawBar(ctx, x, y, barW, bH, 5);
+      ctx.fillStyle = '#9ba7a6';
+      ctx.font = '9px -apple-system,sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(w.lbl, x + barW / 2, H - 4);
+      if (w.done > 0) {
+        ctx.fillStyle = '#c9f66b';
+        ctx.fillText(`${w.done} ex`, x + barW / 2, Math.max(y - 4, py + 12));
+      }
+    });
+  }
+  else if (chartMode === 'lifetime') {
+    const mKeys = Object.keys(stats.monthlyData).sort();
+    if (mKeys.length === 0) mKeys.push(TODAY_ISO.substring(0,7));
+    const maxWk = Math.max(...mKeys.map(k => stats.monthlyData[k]?.workouts || 0), 1);
+    const gap = cW / Math.max(1, mKeys.length), barW = Math.min(24, gap * 0.5);
+
+    mKeys.forEach((mk, k) => {
+      const count = stats.monthlyData[mk]?.workouts || 0;
+      const ratio = count / maxWk;
+      const bH = ratio * cH;
+      const x = px + k * gap + (gap - barW) / 2;
+      const y = H - py - bH;
+      ctx.fillStyle = '#c9f66b';
+      drawBar(ctx, x, y, barW, bH, 5);
+      ctx.fillStyle = '#9ba7a6';
+      ctx.font = '9px -apple-system,sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(mk.substring(2), x + barW / 2, H - 4);
+      if (count > 0) {
+        ctx.fillText(`${count}`, x + barW / 2, Math.max(y - 4, py + 12));
+      }
+    });
+  }
 }
 
+// ───────────────────────────────────────────────────────
+// DOUGHNUT CHART (Today / Monthly / Lifetime)
+// ───────────────────────────────────────────────────────
 function drawDot() {
   const { ctx, W, H } = sizeCanvas('cvDot');
   if (!ctx) return;
   ctx.clearRect(0, 0, W, H);
-  const [done, total] = progress(selDate, selPlanIdx);
-  const remain = Math.max(0, total - done);
+  const stats = getStats();
 
+  let done = 0, total = 0, labelMain = 'complete', pct = 0;
+
+  if (chartMode === '7d') {
+    [done, total] = progress(selDate, selPlanIdx);
+    pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  } else if (chartMode === 'month') {
+    const y = viewMonth.getFullYear(), m = viewMonth.getMonth();
+    const daysInM = new Date(y, m + 1, 0).getDate();
+    for (let d = 1; d <= daysInM; d++) {
+      const ds = localISO(new Date(y, m, d));
+      const [dn, tt] = progress(ds);
+      done += dn; total += tt;
+    }
+    pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    labelMain = 'this month';
+  } else if (chartMode === 'lifetime') {
+    done = stats.totalWorkouts;
+    total = Math.max(done, 1);
+    pct = 100;
+    labelMain = 'workouts';
+  }
+
+  const remain = Math.max(0, total - done);
   const isSmall = W < 480;
 
   let cx, cy, r, lx, ly, isStacked = false;
   if (isSmall) {
-    cx = W / 2;
-    cy = 68;
-    r = Math.min(W * 0.24, 44);
-    isStacked = true;
+    cx = W / 2; cy = 68; r = Math.min(W * 0.24, 44); isStacked = true;
   } else {
-    cx = W / 3;
-    cy = H / 2;
-    r = Math.min(W * 0.28, H * 0.35, 52);
-    lx = W / 1.65;
-    ly = H / 2 - 18;
+    cx = W / 3; cy = H / 2; r = Math.min(W * 0.28, H * 0.35, 52);
+    lx = W / 1.65; ly = H / 2 - 18;
   }
 
   // Track
   ctx.lineWidth = isSmall ? 13 : 16;
   ctx.lineCap = 'round';
   ctx.strokeStyle = '#1f2e30';
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
 
   // Done arc
-  if (done > 0) {
+  if (done > 0 && total > 0) {
     const end = -Math.PI / 2 + (done / Math.max(total, 1)) * Math.PI * 2;
     ctx.strokeStyle = done === total ? '#c9f66b' : '#72e4c1';
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, -Math.PI / 2, end);
-    ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, end); ctx.stroke();
   }
 
   // Center text
-  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
   ctx.textAlign = 'center';
   ctx.fillStyle = '#f6f7f4';
   ctx.font = `bold ${isSmall ? 16 : 19}px -apple-system, sans-serif`;
-  ctx.fillText(`${pct}%`, cx, cy + (isSmall ? 4 : 5));
+  ctx.fillText(chartMode === 'lifetime' ? `${done}` : `${pct}%`, cx, cy + (isSmall ? 4 : 5));
   ctx.fillStyle = '#9ba7a6';
   ctx.font = `${isSmall ? 9 : 10}px -apple-system, sans-serif`;
-  ctx.fillText('complete', cx, cy + (isSmall ? 15 : 17));
+  ctx.fillText(labelMain, cx, cy + (isSmall ? 15 : 17));
 
   // Legend
   ctx.textAlign = 'left';
@@ -744,7 +1171,19 @@ function drawDot() {
   }
 }
 
+function updateLifetimeDOM() {
+  if (chartMode !== 'lifetime') return;
+  const s = getStats();
+  document.getElementById('ltWorkouts').textContent = s.totalWorkouts;
+  document.getElementById('ltVolume').textContent   = (s.totalVolume >= 1000 ? (s.totalVolume / 1000).toFixed(1) + 'k' : s.totalVolume) + ' kg';
+  document.getElementById('ltSets').textContent     = s.totalSets;
+  document.getElementById('ltReps').textContent     = s.totalReps;
+  document.getElementById('ltStreak').textContent   = s.currentStreak + ' Days';
+  document.getElementById('ltLongest').textContent  = s.longestStreak + ' Days';
+}
+
 function drawAllCharts() {
+  updateLifetimeDOM();
   try { drawLine(); } catch(e) { console.warn('line chart', e); }
   try { drawBar_(); } catch(e) { console.warn('bar chart',  e); }
   try { drawDot(); }  catch(e) { console.warn('dot chart',  e); }
