@@ -423,6 +423,29 @@
     // ==========================================
     // 0-DEPENDENCY HTML5 CANVAS CHARTS ENGINE
     // ==========================================
+    // Polyfill: ctx.roundRect not available on iOS Safari < 16
+    function fillRoundRect(ctx, x, y, w, h, r) {
+      if (w < 2 * r) r = w / 2;
+      if (h < 2 * r) r = h / 2;
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y,     x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x,     y + h, 0);
+      ctx.arcTo(x,     y + h, x,     y,     0);
+      ctx.arcTo(x,     y,     x + w, y,     r);
+      ctx.closePath();
+      ctx.fill();
+    }
+    // Safe canvas sizing — getBoundingClientRect returns 0 on iOS when tab not yet painted
+    function setupCanvas(canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const w = rect.width  || canvas.parentElement.clientWidth  || 300;
+      const h = rect.height || canvas.parentElement.clientHeight || 180;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width  = w * dpr;
+      canvas.height = h * dpr;
+      return { w: canvas.width, h: canvas.height, dpr };
+    }
     function renderCanvasCharts() {
       renderLineChart();
       renderBarChart();
@@ -434,11 +457,7 @@
       const canvas = $('#lineChartCanvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * (window.devicePixelRatio || 1);
-      canvas.height = rect.height * (window.devicePixelRatio || 1);
-      const w = canvas.width, h = canvas.height, dpr = window.devicePixelRatio || 1;
-
+      const { w, h, dpr } = setupCanvas(canvas);
       ctx.clearRect(0, 0, w, h);
 
       const days = 7;
@@ -514,11 +533,7 @@
       const canvas = $('#barChartCanvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * (window.devicePixelRatio || 1);
-      canvas.height = rect.height * (window.devicePixelRatio || 1);
-      const w = canvas.width, h = canvas.height, dpr = window.devicePixelRatio || 1;
-
+      const { w, h, dpr } = setupCanvas(canvas);
       ctx.clearRect(0, 0, w, h);
 
       const days = plan.filter(d => !d.rest);
@@ -534,9 +549,7 @@
         const y = h - padY - barH;
 
         ctx.fillStyle = done === total && total > 0 ? '#c9f66b' : '#72e4c1';
-        ctx.beginPath();
-        ctx.roundRect(x, y, barW, barH, [5 * dpr, 5 * dpr, 0, 0]);
-        ctx.fill();
+        fillRoundRect(ctx, x, y, barW, Math.max(barH, 1), 5 * dpr);
 
         ctx.fillStyle = '#9ba7a6';
         ctx.font = `${10 * dpr}px sans-serif`;
@@ -550,11 +563,7 @@
       const canvas = $('#doughnutChartCanvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * (window.devicePixelRatio || 1);
-      canvas.height = rect.height * (window.devicePixelRatio || 1);
-      const w = canvas.width, h = canvas.height, dpr = window.devicePixelRatio || 1;
-
+      const { w, h, dpr } = setupCanvas(canvas);
       ctx.clearRect(0, 0, w, h);
 
       const ids = allExercises();
